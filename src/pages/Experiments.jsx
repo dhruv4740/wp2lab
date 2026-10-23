@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Tag from '../components/Tag';
-import { EXPERIMENTS, POINTERS } from '../labMap';
+import { EXPERIMENTS, POINTERS, EXP_POINTERS } from '../labMap';
 
-const sources = import.meta.glob(['/src/**/*.{js,jsx}'], { query: '?raw', import: 'default' });
+const sources = import.meta.glob(['/src/**/*.{js,jsx}', '/server/**/*.js'], { query: '?raw', import: 'default' });
+const path = (f) => (f.startsWith('../') ? '/server/' + f.slice(10) : '/src/' + f);
 const cell = { padding: '0.45rem 0.6rem', borderBottom: '1px solid #1e293b', textAlign: 'left', fontSize: '0.85rem' };
 
 export default function Experiments() {
   const [lines, setLines] = useState({}); // pointer index -> line number
 
   useEffect(() => {
-    POINTERS.forEach(async (p, i) => {
-      const text = await sources['/src/' + p.file]();
+    [...POINTERS, ...EXP_POINTERS].forEach(async (p, i) => {
+      const text = await sources[path(p.file)]();
       const n = text.split('\n').findIndex((l) => new RegExp(p.find).test(l)) + 1;
       setLines((prev) => ({ ...prev, [i]: n }));
     });
@@ -43,8 +44,23 @@ export default function Experiments() {
             <tr key={i}>
               <td style={cell}><Tag label={p.name} /></td>
               <td style={cell}>{p.detail}</td>
-              <td style={{ ...cell, fontFamily: 'var(--font-mono)' }}>src/{p.file}</td>
+              <td style={{ ...cell, fontFamily: 'var(--font-mono)' }}>{path(p.file).slice(1)}</td>
               <td style={cell}>{lines[i] || '…'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <h2 style={{ margin: '2rem 0 0.8rem' }}>Experiment topics (file and line)</h2>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead><tr><th style={cell}>Exp</th><th style={cell}>Topic</th><th style={cell}>File</th><th style={cell}>Line</th></tr></thead>
+        <tbody>
+          {EXP_POINTERS.map((p, i) => (
+            <tr key={i}>
+              <td style={cell}><Tag label={`Exp ${p.exp}`} kind="exp" /></td>
+              <td style={cell}>{p.name}</td>
+              <td style={{ ...cell, fontFamily: 'var(--font-mono)' }}>{path(p.file).slice(1)}</td>
+              <td style={cell}>{lines[POINTERS.length + i] || '…'}</td>
             </tr>
           ))}
         </tbody>
