@@ -1,3 +1,5 @@
+// Exp 7: MongoDB connection helper. One shared client is created on first use and reused,
+// so every route talks to the same database connection.
 import { MongoClient } from 'mongodb';
 
 const URI = process.env.MONGO_URI || 'mongodb://localhost:27017';

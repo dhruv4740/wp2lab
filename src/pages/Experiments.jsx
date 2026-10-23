@@ -1,3 +1,5 @@
+// Index page for the WP-II lab: Exp 1-8, the programming-test pointers and the exact file and line for each.
+// The data lives in src/labMap.js; line numbers are found by searching the source files when the page loads.
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Tag from '../components/Tag';

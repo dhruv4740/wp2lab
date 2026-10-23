@@ -1,3 +1,5 @@
+// App shell: React Router decides which page to show for each URL (Exp 3 navigation).
+// AuthProvider (Context API) shares the signed-in user with every page.
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';

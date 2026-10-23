@@ -1,3 +1,5 @@
+// Panel at the bottom of each page: shows the Exp badge and lets you open the source files behind the page.
+// FILES below maps a URL to its files; the buttons jump to the first line using each pattern in PATTERNS.
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Tag from './Tag';

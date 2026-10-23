@@ -3,10 +3,10 @@
 export const EXPERIMENTS = [
   { n: 1, title: 'Basic React pages (JSX, components)', routes: ['/', '/about/team'], files: ['pages/Home.jsx', 'components/Hero.jsx', 'pages/Team.jsx'] },
   { n: 2, title: 'Functional components, props, hooks, conditional rendering, events', routes: ['/students', '/experiments'], files: ['components/Tag.jsx', 'pages/Students.jsx', 'pages/Experiments.jsx'] },
-  { n: 3, title: 'Forms, validation, navigation (React Router)', routes: ['/login', '/register', '/experiments/contact'], files: ['components/AuthForm.jsx', 'pages/Contact.jsx', 'App.jsx'] },
+  { n: 3, title: 'Form handling and validation: login, registration, checkbox and dropdown', routes: ['/login', '/register', '/experiments/contact'], files: ['components/AuthForm.jsx', 'pages/Contact.jsx', 'App.jsx'] },
   { n: 4, title: 'JSON, fetch, axios, filtering', routes: ['/news', '/'], files: ['pages/Dispatches.jsx', 'components/LatestNews.jsx'] },
   { n: 5, title: 'Core Node.js: http, url, fs, async file ops, JSON, HTTP errors', routes: ['/gateway'], files: ['../server/groundStationServer.js', '../server/groundStationClient.js'] },
-  { n: 6, title: 'Express routing, validation, CRUD', routes: ['/crew'], files: ['../server/mongo/api.js', '../server/mongo/crew.js', 'pages/CrewRegistry.jsx'] },
+  { n: 6, title: 'Express routing: modular routers, middleware, validation, CRUD', routes: ['/crew', '/students'], files: ['../server/mongo/api.js', '../server/students/routes.js', '../server/mongo/crew.js'] },
   { n: 7, title: 'MongoDB CRUD (company.Employee) - runs as a script; /crew uses the same driver', routes: ['/crew'], files: ['../server/lab/exp7_crud.js', '../server/mongo/db.js'] },
   { n: 8, title: 'React + Node REST API (Student Management)', routes: ['/students'], files: ['pages/Students.jsx', '../server/students/routes.js', '../server/students/seed.js'] },
 ];
@@ -30,6 +30,8 @@ export const POINTERS = [
 
 // Per-experiment topics: which file and line show each one (first line matching `find`).
 export const EXP_POINTERS = [
+  { exp: 3, name: 'Controlled inputs (value + onChange)', file: 'components/AuthForm.jsx', find: 'onChange=' },
+  { exp: 3, name: 'Checkbox and dropdown validation', file: 'components/AuthForm.jsx', find: 'err\\.agree' },
   { exp: 3, name: 'Programmatic navigation (useNavigate)', file: 'pages/Contact.jsx', find: 'useNavigate\\(\\)' },
   { exp: 3, name: 'Nested routes (Outlet)', file: 'pages/About.jsx', find: '<Outlet' },
   { exp: 4, name: 'Filtering JSON data', file: 'pages/Dispatches.jsx', find: '\\.filter\\(' },
@@ -39,6 +41,9 @@ export const EXP_POINTERS = [
   { exp: 5, name: 'fs.appendFile (async)', file: '../server/groundStationServer.js', find: 'fs\\.appendFile\\(' },
   { exp: 5, name: 'JSON.parse', file: '../server/groundStationServer.js', find: 'JSON\\.parse\\(' },
   { exp: 5, name: 'HTTP error 404', file: '../server/groundStationServer.js', find: 'writeHead\\(404' },
+  { exp: 6, name: 'Modular router (express.Router)', file: '../server/students/routes.js', find: 'Router\\(\\)' },
+  { exp: 6, name: 'Middleware (express.json, cors)', file: '../server/mongo/api.js', find: 'app\\.use\\(express\\.json' },
+  { exp: 6, name: 'Mounting routers (app.use)', file: '../server/mongo/api.js', find: "app\\.use\\('/api/students" },
   { exp: 6, name: 'Express validation (400)', file: '../server/mongo/api.js', find: 'res\\.status\\(400' },
   { exp: 6, name: 'Express not found (404)', file: '../server/mongo/api.js', find: 'res\\.status\\(404' },
   { exp: 7, name: 'insertOne', file: '../server/lab/exp7_crud.js', find: 'insertOne\\(doc' },
