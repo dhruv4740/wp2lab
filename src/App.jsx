@@ -20,9 +20,6 @@ import About from './pages/About';
 import Team from './pages/Team';
 import Company from './pages/Company';
 import Contact from './pages/Contact';
-import NewsFeed from './pages/NewsFeed';
-import UplinkCommand from './pages/UplinkCommand';
-import NodeServerConsole from './pages/NodeServerConsole';
 
 function MainLayout() {
   const location = useLocation();
@@ -50,10 +47,10 @@ function MainLayout() {
           <Route path="/students" element={<Students />} />
 
           <Route path="/experiments" element={<Experiments />} />
+          <Route path="/experiments/news" element={<Navigate to="/news" replace />} />
+          <Route path="/experiments/uplink" element={<Navigate to="/uplink" replace />} />
+          <Route path="/experiments/node-console" element={<Navigate to="/gateway" replace />} />
           <Route path="/experiments/contact" element={<Contact />} />
-          <Route path="/experiments/news" element={<NewsFeed />} />
-          <Route path="/experiments/uplink" element={<UplinkCommand />} />
-          <Route path="/experiments/node-console" element={<NodeServerConsole />} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
           <Route path="/about" element={<About />}>

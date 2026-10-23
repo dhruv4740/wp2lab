@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import {
   Newspaper,
   Search,
@@ -43,18 +44,12 @@ export default function Dispatches() {
     const start = performance.now();
 
     try {
-      const response = await fetch(NEWS_API, {
-        headers: { Accept: 'application/json' },
-      });
+      const response = await axios.get(NEWS_API); // axios: response.data is already parsed JSON
 
       const end = performance.now();
       const duration = Math.round(end - start);
 
-      if (!response.ok) {
-        throw new Error('HTTP status ' + response.status + ': Failed to fetch dispatches');
-      }
-
-      const json = await response.json();
+      const json = response.data;
       setData(json);
       setApiMetrics({
         url: NEWS_API,
@@ -64,7 +59,7 @@ export default function Dispatches() {
         timestamp: new Date().toLocaleTimeString(),
       });
     } catch (err) {
-      setError(err.message || 'Error executing Fetch API request.');
+      setError((err.response ? 'HTTP status ' + err.response.status + ': ' : '') + err.message || 'Error executing Fetch API request.');
     } finally {
       setLoading(false);
     }

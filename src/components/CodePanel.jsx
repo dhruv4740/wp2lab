@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import Tag from './Tag';
+import { EXPERIMENTS } from '../labMap';
 
 // Page → files that implement it. Edit this map to change what the panel shows.
 const FILES = {
@@ -9,11 +11,9 @@ const FILES = {
   '/uplink': ['pages/GroundUplink.jsx'],
   '/gateway': ['pages/GroundSupport.jsx', '../server/groundStationServer.js'],
   '/news': ['pages/Dispatches.jsx', '../server/mongo/api.js'],
-  '/experiments': ['pages/Experiments.jsx'],
+  '/experiments': ['pages/Experiments.jsx', 'labMap.js', 'components/Tag.jsx'],
+  '/students': ['pages/Students.jsx', '../server/students/routes.js', '../server/students/find.js'],
   '/experiments/contact': ['pages/Contact.jsx'],
-  '/experiments/news': ['pages/NewsFeed.jsx', '../server/mongo/api.js'],
-  '/experiments/uplink': ['pages/UplinkCommand.jsx'],
-  '/experiments/node-console': ['pages/NodeServerConsole.jsx', '../server/groundStationServer.js'],
   '/login': ['pages/LoginForm.jsx', 'context/AuthContext.jsx'],
   '/register': ['pages/RegisterForm.jsx', 'context/AuthContext.jsx'],
   '/about/team': ['pages/About.jsx', 'pages/Team.jsx'],
@@ -29,6 +29,8 @@ const PATTERNS = [
   ['Context', /createContext\(|useContext\(/],
   ['Express route', /app\.(get|post|put|delete)\(/],
   ['MongoDB call', /\.(insertOne|find|findOneAndUpdate|deleteOne)\(/],
+  ['axios', /axios\.get\(/],
+  ['async / await', /await /],
   ['http server', /http\.createServer\(/],
 ];
 
@@ -80,10 +82,12 @@ function FileBlock({ file }) {
 export default function CodePanel() {
   const { pathname } = useLocation();
   const files = FILES[pathname];
+  const exps = EXPERIMENTS.filter((e) => e.routes.includes(pathname));
   if (!files) return null;
   return (
     <details key={pathname} style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem 1.5rem 3rem', width: '100%' }}>
       <summary style={{ cursor: 'pointer', color: '#38bdf8', fontSize: '0.9rem' }}>{'</>'} Code behind this page</summary>
+      <div style={{ display: 'flex', gap: 6, marginTop: '0.6rem' }}>{exps.map((e) => <Tag key={e.n} label={`Exp ${e.n}: ${e.title}`} kind="exp" />)}</div>
       <div style={{ marginTop: '0.8rem' }}>
         {files.map((f) => <FileBlock key={f} file={f} />)}
       </div>

@@ -1,32 +1,53 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import Tag from '../components/Tag';
+import { EXPERIMENTS, POINTERS } from '../labMap';
 
-const ITEMS = [
-  { to: '/crew', title: 'Crew Registry', text: 'React + Express + MongoDB: create, read, update and delete crew records.' },
-  { to: '/students', title: 'Student Management (Exp 8)', text: 'React + Express REST API + MongoDB: register, list, filter, update, delete, scholarship list.' },
-  { to: '/login', title: 'Sign In', text: 'Login form with validation.' },
-  { to: '/register', title: 'Register', text: 'Registration form with validation, dropdown and checkbox.' },
-  { to: '/about', title: 'About (nested routes)', text: 'Nested routing with Team and Company sub-pages.' },
-  { to: '/experiments/contact', title: 'Contact Form', text: 'Form submit with programmatic navigation.' },
-  { to: '/experiments/news', title: 'News (fetch API)', text: 'Fetching JSON with loading and error states.' },
-  { to: '/experiments/uplink', title: 'Uplink Forms', text: 'Forgiving and structured input formats.' },
-  { to: '/experiments/node-console', title: 'Node.js Console', text: 'Node core modules, HTTP server and client, event loop.' },
-  { to: '/telemetry', title: 'Telemetry (in-page editing)', text: 'Inline edit, overlays, tables, drag and drop.' },
-];
+const sources = import.meta.glob(['/src/**/*.{js,jsx}'], { query: '?raw', import: 'default' });
+const cell = { padding: '0.45rem 0.6rem', borderBottom: '1px solid #1e293b', textAlign: 'left', fontSize: '0.85rem' };
 
 export default function Experiments() {
+  const [lines, setLines] = useState({}); // pointer name -> line number
+
+  useEffect(() => {
+    POINTERS.forEach(async (p) => {
+      const text = await sources['/src/' + p.file]();
+      const n = text.split('\n').findIndex((l) => new RegExp(p.find).test(l)) + 1;
+      setLines((prev) => ({ ...prev, [p.name]: n }));
+    });
+  }, []);
+
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto', padding: '7rem 1.5rem 4rem' }}>
-      <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '2.2rem', marginBottom: '0.5rem' }}>Experiments</h1>
-      <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Every web programming topic built into this site, one click each.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
-        {ITEMS.map((i) => (
-          <Link key={i.to} to={i.to} style={{ textDecoration: 'none', color: '#f8fafc', padding: '1.1rem', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 10, background: 'rgba(11,16,29,0.7)' }}>
-            <div style={{ fontWeight: 600, marginBottom: 6 }}>{i.title}</div>
-            <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>{i.text}</div>
-          </Link>
+    <div style={{ maxWidth: 1000, margin: '0 auto', padding: '7rem 1.5rem 4rem' }}>
+      <h1 style={{ fontFamily: 'Space Grotesk, sans-serif', fontSize: '2.2rem', marginBottom: '0.5rem' }}>WP-II Experiments</h1>
+      <p style={{ color: '#94a3b8', marginBottom: '2rem' }}>Exp 1 to 8 and where each is shown on this site, then every programming-test pointer with its file and line.</p>
+
+      <h2 style={{ marginBottom: '0.8rem' }}>Experiment-wise</h2>
+      <div style={{ display: 'grid', gap: '0.8rem', marginBottom: '2.5rem' }}>
+        {EXPERIMENTS.map((e) => (
+          <div key={e.n} style={{ padding: '0.9rem 1rem', border: '1px solid rgba(56,189,248,0.2)', borderRadius: 10, background: 'rgba(11,16,29,0.7)' }}>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}><Tag label={`Exp ${e.n}`} kind="exp" /><b>{e.title}</b></div>
+            <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+              Pages: {e.routes.map((r) => <Link key={r} to={r} style={{ color: '#38bdf8', marginRight: 10 }}>{r}</Link>)}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b', fontFamily: 'var(--font-mono)', marginTop: 4 }}>Files: {e.files.join('  ')}</div>
+          </div>
         ))}
       </div>
+
+      <h2 style={{ marginBottom: '0.8rem' }}>Programming-test pointers</h2>
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead><tr><th style={cell}>Pointer</th><th style={cell}>File</th><th style={cell}>Line</th></tr></thead>
+        <tbody>
+          {POINTERS.map((p) => (
+            <tr key={p.name}>
+              <td style={cell}><Tag label={p.name} /></td>
+              <td style={{ ...cell, fontFamily: 'var(--font-mono)' }}>src/{p.file}</td>
+              <td style={cell}>{lines[p.name] || '…'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
