@@ -3,7 +3,6 @@ import { Sliders, Edit3, Check, X, Cpu } from 'lucide-react';
 
 import PassLogTable from '../components/PassLogTable';
 import RuleConfigOverlay from '../components/RuleConfigOverlay';
-
 import DraggableCards from '../components/DraggableCards';
 import DraggableQueue from '../components/DraggableQueue';
 import PassDetailOverlay from '../components/PassDetailOverlay';
@@ -11,16 +10,16 @@ import SSTVCarousel from '../components/SSTVCarousel';
 import TelemetryStreamEngine from '../components/TelemetryStreamEngine';
 
 export default function TelemetryHub() {
-  // Core Telemetry State
+  // useState: values shared by the Widgets and AI router tabs
   const [linkQuality, setLinkQuality] = useState('High');
   const [batteryLevel, setBatteryLevel] = useState(85);
 
-  // Experiment 4: Single-Field Inline Edit State
+  // Inline edit: the saved name, whether the input is showing, and the text being typed
   const [satNickname, setSatNickname] = useState('SomaiyaSat-1');
   const [isEditingNickname, setIsEditingNickname] = useState(false);
   const [nicknameEdit, setNicknameEdit] = useState('');
 
-  // Experiment 4: Overlay Edit State
+  // Overlay edit: whether the popup is open, and the rules it changes
   const [showRuleOverlay, setShowRuleOverlay] = useState(false);
   const [aiRules, setAiRules] = useState({
     batterySafeThreshold: 25,
@@ -29,15 +28,14 @@ export default function TelemetryHub() {
     beaconInterval: 30,
   });
 
-  // Experiment 5: Drag-and-Drop Card Order
+  // Drag and drop: the order of the three cards
   const [cardOrder, setCardOrder] = useState(['orbit', 'battery', 'rf-link']);
 
+  // Which tab is open, and which pass row (if any) is shown in the detail popup
   const [tab, setTab] = useState('stream');
-
-  // Experiment 5: Pass Detail Overlay
   const [selectedPass, setSelectedPass] = useState(null);
 
-  // AI Router Logic (uses configurable rules)
+  // Recalculated on every render from the battery level and the AI rules
   const getAIRoutingPriority = () => {
     if (batteryLevel < aiRules.batterySafeThreshold) {
       return [
@@ -61,16 +59,9 @@ export default function TelemetryHub() {
   };
 
   const handleSaveEdit = () => {
-    if (nicknameEdit.trim()) {
-      setSatNickname(nicknameEdit.trim());
-    }
+    if (nicknameEdit.trim()) setSatNickname(nicknameEdit.trim());
     setIsEditingNickname(false);
   };
-
-  const handleCancelEdit = () => {
-    setIsEditingNickname(false);
-  };
-
 
   const TABS = [
     ['stream', 'Live stream'],
@@ -93,7 +84,7 @@ export default function TelemetryHub() {
               <>
                 <input value={nicknameEdit} onChange={(e) => setNicknameEdit(e.target.value)} autoFocus style={{ background: '#060810', border: '1px solid #00e5ff', borderRadius: 4, color: '#00e5ff', fontFamily: 'var(--font-mono)', padding: '0.15rem 0.4rem', outline: 'none' }} />
                 <button type="button" onClick={handleSaveEdit} style={{ ...iconBtn, color: '#10b981' }}><Check size={16} /></button>
-                <button type="button" onClick={handleCancelEdit} style={{ ...iconBtn, color: '#f43f5e' }}><X size={16} /></button>
+                <button type="button" onClick={() => setIsEditingNickname(false)} style={{ ...iconBtn, color: '#f43f5e' }}><X size={16} /></button>
               </>
             ) : (
               <>
@@ -108,6 +99,7 @@ export default function TelemetryHub() {
         </button>
       </div>
 
+      {/* Tab buttons set `tab`; only the matching panel below is rendered */}
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
         {TABS.map(([id, label]) => (
           <button key={id} type="button" onClick={() => setTab(id)} style={{ padding: '0.5rem 1rem', borderRadius: 6, cursor: 'pointer', border: '1px solid ' + (tab === id ? '#00e5ff' : '#334155'), background: tab === id ? 'rgba(0, 229, 255, 0.15)' : 'transparent', color: tab === id ? '#00e5ff' : '#94a3b8' }}>
@@ -157,8 +149,9 @@ export default function TelemetryHub() {
 
       {tab === 'sstv' && <SSTVCarousel />}
 
-      {tab === 'passes' && <PassLogTable onSelectPass={(pass) => setSelectedPass(pass)} />}
+      {tab === 'passes' && <PassLogTable onPassClick={setSelectedPass} />}
 
+      {/* Overlays are only mounted while open */}
       {showRuleOverlay && <RuleConfigOverlay aiRules={aiRules} setAiRules={setAiRules} onClose={() => setShowRuleOverlay(false)} />}
       {selectedPass && <PassDetailOverlay pass={selectedPass} onClose={() => setSelectedPass(null)} />}
     </div>

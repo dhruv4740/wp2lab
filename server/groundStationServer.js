@@ -19,14 +19,14 @@ import EventEmitter from 'events';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Port configuration
+// Configuration: port (from environment or 8080) and the files this server reads and writes.
 const PORT = parseInt(process.env.PORT || process.env.GROUND_PORT || '8080', 10);
 const LOG_DIR = path.join(__dirname, '..', 'logs');
 const TELEMETRY_LOG = path.join(LOG_DIR, 'telemetry.log');
 const COMMAND_LOG = path.join(LOG_DIR, 'telecommands.log');
 const MANIFEST_HTML_PATH = path.join(__dirname, '..', 'public', 'flight_manifest.html');
 
-// Ensure log directory exists using non-blocking fs
+// Create the log folder once at startup (synchronous is fine before the server starts listening).
 if (!fs.existsSync(LOG_DIR)) {
   fs.mkdirSync(LOG_DIR, { recursive: true });
 }
@@ -37,6 +37,7 @@ if (!fs.existsSync(LOG_DIR)) {
 class GroundStationEventEmitter extends EventEmitter {}
 const stationEvents = new GroundStationEventEmitter();
 
+// Keep the 50 most recent events in memory (newest first) for GET /api/events.
 const recentEvents = [];
 function recordEvent(type, payload) {
   const eventEntry = {
@@ -50,6 +51,7 @@ function recordEvent(type, payload) {
   return eventEntry;
 }
 
+// Listeners: each emit elsewhere in this file triggers the matching handler, which logs and records the event.
 stationEvents.on('station:start', (data) => {
   console.log(`[EVENT] Ground station started on port ${data.port} at ${data.time}`);
   recordEvent('station:start', data);
@@ -73,23 +75,25 @@ stationEvents.on('manifest:accessed', (data) => {
 // ---------------------------------------------------------------------------
 // 2. HTTP SERVER CREATION & ROUTING
 // ---------------------------------------------------------------------------
+// The callback runs once per request; routes are chosen by comparing URL path and HTTP method.
 const server = http.createServer((req, res) => {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
   const method = req.method;
 
-  // CORS Headers for React Frontend
+  // CORS headers let the React front end (a different port) call this server.
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Station-Node');
 
+  // Browsers send an OPTIONS preflight request first; answer 204 No Content.
   if (method === 'OPTIONS') {
     res.writeHead(204);
     res.end();
     return;
   }
 
-  // Route 1: Serve Static HTML Manifest via fs.readFile
+  // Route 1: serve the static HTML manifest. The file is read asynchronously and the reply is sent in the callback.
   if ((pathname === '/' || pathname === '/manifest.html') && method === 'GET') {
     fs.readFile(MANIFEST_HTML_PATH, 'utf8', (err, htmlContent) => {
       if (err) {
@@ -114,7 +118,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 2: GET /api/telemetry - Live Spacecraft Telemetry & Asynchronous Log Write
+  // Route 2: GET /api/telemetry - simulated telemetry as JSON; each reading is also appended to a log file.
   if (pathname === '/api/telemetry' && method === 'GET') {
     const telemetryData = {
       satellite: 'SomaiyaSat-1 (1PQ)',
@@ -145,12 +149,13 @@ const server = http.createServer((req, res) => {
       }
     };
 
-    // Non-blocking asynchronous log write using fs.appendFile
+    // Append one line to the log without blocking the response; the callback only reports failures.
     const logLine = `[${telemetryData.timestamp}] SAT=${telemetryData.satellite} BAT=${telemetryData.power.batteryPercent}% SNR=${telemetryData.rfLink.snrDb}dB VOLT=${telemetryData.power.solarVoltageV}V\n`;
     fs.appendFile(TELEMETRY_LOG, logLine, 'utf8', (err) => {
       if (err) console.error('Failed to append telemetry log:', err);
     });
 
+    // Emit a custom event; the listener registered above logs it and stores it.
     stationEvents.emit('telemetry:logged', {
       satellite: telemetryData.satellite,
       battery: telemetryData.power.batteryPercent,
@@ -165,7 +170,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 3: GET /api/health - Ground Station Node Health using OS & Process info
+  // Route 3: GET /api/health - server health from the process and os core modules.
   if (pathname === '/api/health' && method === 'GET') {
     const healthData = {
       station: 'SomaiyaSat Ground Terminal Alpha',
@@ -201,7 +206,8 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 4: POST /api/telecommand - Ground Station Telecommand Ingestion
+  // Route 4: POST /api/telecommand - accept a JSON command. The request body arrives in chunks (stream),
+  // so collect them on 'data' and process the whole text on 'end'.
   if (pathname === '/api/telecommand' && method === 'POST') {
     let body = '';
     req.on('data', chunk => {
@@ -209,6 +215,7 @@ const server = http.createServer((req, res) => {
     });
 
     req.on('end', () => {
+      // Invalid JSON throws, and the catch block below replies 400 Bad Request.
       try {
         const payload = JSON.parse(body || '{}');
         const commandRecord = {
@@ -221,7 +228,7 @@ const server = http.createServer((req, res) => {
           status: 'DISPATCHED_TO_UPLINK_QUEUE'
         };
 
-        // Write to command log file asynchronously
+        // Log the command to a file (asynchronous append).
         const logEntry = `[${commandRecord.timestamp}] ID=${commandRecord.commandId} OP=${commandRecord.opcode} OP_CALL=${commandRecord.operatorCallsign} HEX=${commandRecord.hexPayload}\n`;
         fs.appendFile(COMMAND_LOG, logEntry, 'utf8', (err) => {
           if (err) console.error('Failed to append command log:', err);
@@ -247,7 +254,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 5: GET /api/events - Recent Station Events
+  // Route 5: GET /api/events - the recent events recorded by the EventEmitter listeners.
   if (pathname === '/api/events' && method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
@@ -257,11 +264,11 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 6: GET /api/logs - Read Telemetry Log File
+  // Route 6: GET /api/logs - return the last 30 lines of the telemetry log file.
   if (pathname === '/api/logs' && method === 'GET') {
     fs.readFile(TELEMETRY_LOG, 'utf8', (err, logData) => {
       if (err) {
-        // If file doesn't exist yet, return empty list
+        // No log file yet (nothing written): reply with an empty list instead of an error.
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({
           file: 'telemetry.log',
@@ -281,7 +288,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // Route 7: POST /api/events/trigger - Trigger Manual Mission Event
+  // Route 7: POST /api/events/trigger - record a manual event from a JSON body.
   if (pathname === '/api/events/trigger' && method === 'POST') {
     let body = '';
     req.on('data', chunk => { body += chunk.toString(); });
@@ -299,7 +306,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // 404 Fallback
+  // No route matched: reply 404 Not Found and list the available endpoints.
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({
     error: 'Endpoint not found',
@@ -316,7 +323,7 @@ const server = http.createServer((req, res) => {
   }));
 });
 
-// Start Server
+// Start listening, then emit the startup event.
 server.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(`🛰️  SOMAIYASAT GROUND STATION NODE.JS SERVER ONLINE`);

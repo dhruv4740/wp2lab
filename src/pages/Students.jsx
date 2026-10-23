@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
+// Exp 8: React front end for the Students REST API (list, filter, create, update, delete,
+// scholarship list). Uses the fetch API in async functions and controlled form inputs (Exp 3).
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const BRANCHES = ['Computer', 'IT', 'Electronics', 'Mechanical'];
 const EMPTY = { rollNo: '', name: '', branch: BRANCHES[0], state: '', joiningYear: '', cgpa: '', subjects: '' };
 
+// Helper for every request: sends JSON, parses the reply, and throws the server's error message on a non-2xx status.
 async function api(path, options) {
   const res = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...options });
   const data = await res.json();
@@ -14,7 +17,6 @@ async function api(path, options) {
 const box = { padding: '0.55rem', borderRadius: 6, border: '1px solid #334155', background: '#0b101d', color: '#f8fafc' };
 const btn = { ...box, cursor: 'pointer', borderColor: '#38bdf8', color: '#38bdf8' };
 
-// Exp 8: React front-end for the Students REST API (GET/POST/PUT/DELETE + scholarship list).
 export default function Students() {
   const [students, setStudents] = useState([]);
   const [form, setForm] = useState(EMPTY);
@@ -24,6 +26,7 @@ export default function Students() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Build the URL from the current view and filter (for example /students?state=Goa), then GET the list.
   const load = useCallback(() => {
     let path = view === 'scholarship' ? '/students/scholarship' : '/students';
     if (view === 'all' && filter.value.trim()) path += `?${filter.key}=${encodeURIComponent(filter.value.trim())}`;
@@ -32,8 +35,10 @@ export default function Students() {
   }, [view, filter]);
   useEffect(() => { load(); }, [load]);
 
-  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+  // Returns a change handler that updates one field of the form state (controlled inputs).
+  const set = (k) =>(e) => setForm({ ...form, [k]: e.target.value });
 
+  // One submit handler: PUT when editing an existing student, POST when registering a new one.
   const submit = async (e) => {
     e.preventDefault();
     setError('');
@@ -57,6 +62,7 @@ export default function Students() {
     }
   };
 
+  // Copy the chosen student into the form and switch to edit mode.
   const edit = (s) => {
     setEditId(s._id);
     setForm({ rollNo: s.rollNo, name: s.name, branch: s.branch, state: s.state, joiningYear: s.joiningYear, cgpa: s.cgpa, subjects: (s.subjects || []).join(', ') });

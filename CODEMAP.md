@@ -29,9 +29,9 @@ Compass: `mongodb://localhost:27017` → `somaiyasat` → `crew`.
 |---|---|---|
 | `/` | `pages/Home.jsx` → `components/Hero.jsx`, `components/HowItWorks.jsx`, `components/LatestNews.jsx` (real news headlines, `useEffect` + `fetch`) | `useState`, `useEffect` + `fetch` + `setInterval` (custom hook `usePoll`) |
 | `/crew` | `pages/CrewRegistry.jsx` | controlled form, CRUD with `fetch`, two-step delete |
-| `/telemetry` | `pages/TelemetryHub.jsx` (5 tabs via `useState`) + `PassLogTable`, `RuleConfigOverlay`, `DraggableCards`, `DraggableQueue`, `PassDetailOverlay`, `SSTVCarousel`, `TelemetryStreamEngine` | inline edit, overlays, drag and drop, lists |
-| `/uplink` | `pages/GroundUplink.jsx` + `WireframeStudio` | props, SVG |
-| `/gateway` | `pages/GroundSupport.jsx` | |
+| `/telemetry` | `pages/TelemetryHub.jsx` (5 tabs via `useState`) + `PassLogTable`, `Overlay` (shared popup shell), `RuleConfigOverlay`, `DraggableCards`, `DraggableQueue`, `PassDetailOverlay`, `SSTVCarousel`, `TelemetryStreamEngine` | inline edit, overlays, drag and drop, lists |
+| `/uplink` | `pages/GroundUplink.jsx` | props, state |
+| `/gateway` | `pages/GroundSupport.jsx` (calls `GET /api/health` and `POST /api/telecommand` on `server/groundStationServer.js`; run `npm run server` first) | Exp 5 end to end |
 | `/news` | `pages/Dispatches.jsx` (navbar "News"; `/dispatches` redirects here) | `fetch` of `/api/news` |
 | `/experiments` | `pages/Experiments.jsx` + `labMap.js` | Exp 1-8 index and a pointer -> file -> line table (single source: `src/labMap.js`) |
 | `/students` | `pages/Students.jsx` + `server/students/*` | Exp 8 |
@@ -76,3 +76,4 @@ Source: `TY BTech IT-Syllabus-SVU-2023.pdf` (course outcomes CO1-CO4) and the WP
 ## Removed in simplification
 
 `NewsFeed.jsx`, `UplinkCommand.jsx`, `NodeServerConsole.jsx` (duplicates of News, Uplink and the Node server). Old URLs `/experiments/news|uplink|node-console` redirect to `/news`, `/uplink`, `/gateway`. Exp 5 is shown in `server/groundStationServer.js`.
+- `components/WireframeStudio.jsx` (unused). `PassDetailOverlay` and `RuleConfigOverlay` now take `{pass|aiRules, onClose}` and are mounted only while open.

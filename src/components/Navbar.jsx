@@ -1,3 +1,4 @@
+// Top navigation bar: NavLink highlights the active route, and the menu button toggles the mobile layout.
 import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -12,6 +13,7 @@ const LINKS = [
   { to: '/experiments', label: 'Experiments' },
 ];
 
+// Navbar styles, including the mobile menu rules, injected through a style element.
 const css = `
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; gap: 1.5rem; padding: 0.8rem 1.5rem; background: rgba(4,6,10,0.9); border-bottom: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(8px); }
 .nav a.link { color: #94a3b8; text-decoration: none; font-size: 0.9rem; }

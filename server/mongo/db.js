@@ -7,6 +7,7 @@ const DB_NAME = process.env.MONGO_DB || 'somaiyasat';
 
 let client;
 
+// Connect once, then hand back the database; later calls reuse the same client.
 export async function connectDB() {
   if (!client) {
     client = new MongoClient(URI);
@@ -15,6 +16,7 @@ export async function connectDB() {
   return client.db(DB_NAME);
 }
 
+// Collection shortcuts: each one waits for the connection, then returns that collection.
 export const crew = async () => (await connectDB()).collection('crew');
 
 export async function closeDB() {

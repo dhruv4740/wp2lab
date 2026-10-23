@@ -1,3 +1,4 @@
+// Exp 3: sign-in page. It reuses the shared AuthForm and moves to /telemetry once login succeeds.
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import AuthForm from '../components/AuthForm';

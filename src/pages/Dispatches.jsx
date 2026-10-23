@@ -1,35 +1,21 @@
+// Exp 4: loads the news feed from our Express API with axios and async/await, then lets the
+// user filter it by search text and category (state-driven filtering, Exp 3).
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import {
-  Newspaper,
-  Search,
-  RefreshCw,
-  Clock,
-  Radio,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink,
-  ChevronRight,
-  Tag,
-  Activity,
-  Terminal,
-  Cpu,
-  Globe,
-  Filter,
-} from 'lucide-react';
+import { Search, RefreshCw, AlertCircle, ChevronRight } from 'lucide-react';
 
 const NEWS_API = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api') + '/news';
 
 export default function Dispatches() {
+  // State: the API response, a loading flag, an error message, and the two filter inputs.
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [activeArticle, setActiveArticle] = useState(null);
 
-  // Network Telemetry
+  // Details of the last request (URL, status, time taken) shown in the banner.
   const [apiMetrics, setApiMetrics] = useState({
     url: NEWS_API,
     method: 'GET',
@@ -38,6 +24,8 @@ export default function Dispatches() {
     timestamp: null,
   });
 
+  // Async function: waits for the HTTP response, then stores it. try/catch handles request errors,
+  // and finally always turns the loading flag off.
   const fetchDispatches = async () => {
     setLoading(true);
     setError(null);
@@ -59,19 +47,22 @@ export default function Dispatches() {
         timestamp: new Date().toLocaleTimeString(),
       });
     } catch (err) {
-      setError((err.response ? 'HTTP status ' + err.response.status + ': ' : '') + err.message || 'Error executing Fetch API request.');
+      setError((err.response ? 'HTTP status ' + err.response.status + ': ' : '') + (err.message || 'Request failed'));
     } finally {
       setLoading(false);
     }
   };
 
+  // Run once after the first render: load the feed when the page opens.
   useEffect(() => {
     fetchDispatches();
   }, []);
 
   const articles = data?.articles || [];
+  // Category buttons: "All" plus each distinct category in the data (a Set removes duplicates).
   const categories = ['All', ...new Set(articles.map((a) => a.category))];
 
+  // Filter: keep articles that match the chosen category and contain the search text in title or summary.
   const filteredArticles = articles.filter((art) => {
     const matchesCategory = selectedCategory === 'All' || art.category === selectedCategory;
     const matchesSearch =
@@ -91,7 +82,7 @@ export default function Dispatches() {
           MISSION DISPATCHES &amp; ORBITAL WIRE
         </h1>
         <p style={{ color: '#94a3b8', fontSize: '1.15rem', maxWidth: '800px', lineHeight: 1.6 }}>
-          Real space news from the free Spaceflight News API (api.spaceflightnewsapi.net, no key). Our Express server fetches it at GET /api/news, reshapes it, and this page loads it with fetch(). If the internet or the API is down, it falls back to public/news.json.
+          Real space news from the free Spaceflight News API (api.spaceflightnewsapi.net, no key). Our Express server fetches it at GET /api/news, reshapes it, and this page loads it with axios. If the internet or the API is down, it falls back to public/news.json.
         </p>
       </div>
 
@@ -241,10 +232,13 @@ export default function Dispatches() {
                 <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: '#64748b' }}>
                   BY {art.author || 'MISSION OPS'}
                 </span>
-                <button
-                  type="button"
-                  onClick={() => setActiveArticle(art)}
+                {/* Opens the original article in a new tab */}
+                <a
+                  href={art.url}
+                  target="_blank"
+                  rel="noreferrer"
                   style={{
+                    textDecoration: 'none',
                     background: 'transparent',
                     border: 'none',
                     color: '#00e5ff',
@@ -258,7 +252,7 @@ export default function Dispatches() {
                 >
                   <span>READ DISPATCH</span>
                   <ChevronRight size={14} />
-                </button>
+                </a>
               </div>
             </div>
           ))}

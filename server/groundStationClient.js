@@ -14,9 +14,8 @@ import http from 'http';
 const SERVER_HOST = process.env.GROUND_HOST || 'localhost';
 const SERVER_PORT = parseInt(process.env.GROUND_PORT || '8080', 10);
 
-/**
- * Generic HTTP Request helper using Node.js Core 'http' module
- */
+// Wrap http.request in a Promise so callers can wait for it: it resolves once the whole
+// response has arrived (collected from 'data' chunks) and rejects on a network error.
 function sendHttpRequest(options, postData = null) {
   return new Promise((resolve, reject) => {
     const startTime = performance.now();
@@ -51,9 +50,7 @@ function sendHttpRequest(options, postData = null) {
   });
 }
 
-/**
- * Run Automated Web Client Sequence
- */
+// Call each server endpoint in turn and print the result. Run the server first.
 async function runClientSequence() {
   console.log(`=======================================================`);
   console.log(`📡 SOMAIYASAT GROUND STATION HTTP CLIENT INITIATED`);
@@ -94,7 +91,7 @@ async function runClientSequence() {
     console.log(`  ✓ Battery: ${telemJson.power.batteryPercent}% | Downlink SNR: ${telemJson.rfLink.snrDb} dB`);
     console.log(`  ✓ Active Carrier: ${telemJson.rfLink.carrierFreqMhz} MHz (${telemJson.rfLink.mode})\n`);
 
-    // 3. HTML Manifest Payload Retrieval via fs module (GET /manifest.html)
+    // 3. HTML manifest (GET /manifest.html), which the server reads from disk with the fs module
     console.log(`[TEST 3] Dispatching GET /manifest.html (Serving HTML via fs.readFile)...`);
     const manifestRes = await sendHttpRequest({
       hostname: SERVER_HOST,
@@ -108,7 +105,7 @@ async function runClientSequence() {
     console.log(`  ✓ Payload Size: ${manifestRes.data.length} bytes`);
     console.log(`  ✓ Verification: Contains '<!DOCTYPE html>' and 'SomaiyaSat-1'\n`);
 
-    // 4. Telecommand Uplink Dispatch (POST /api/telecommand)
+    // 4. Telecommand Uplink Dispatch (POST /api/telecommand): the body is sent as JSON, so set Content-Type and length.
     console.log(`[TEST 4] Dispatching POST /api/telecommand (JSON payload uplink)...`);
     const cmdPayload = {
       opcode: '0x3F_ACTIVATE_SSTV_BEACON',
@@ -147,6 +144,7 @@ async function runClientSequence() {
     console.log(`🎉 ALL NODE.JS HTTP CLIENT SEQUENCE TESTS PASSED!`);
     console.log(`=======================================================`);
   } catch (err) {
+    // Any failed request lands here; ECONNREFUSED means the server is not running.
     console.error(`\n❌ HTTP Client Error:`, err.message);
     if (err.code === 'ECONNREFUSED') {
       console.error(`👉 Hint: Ensure the Node.js ground server is running via 'npm run server' or 'node server/groundStationServer.js'`);

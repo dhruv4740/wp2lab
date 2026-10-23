@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
+// Exp 8: React front end for the Crew REST API (list, add, edit, delete) stored in MongoDB.
+// Uses the fetch API in async functions and controlled form inputs (Exp 3).
 const API = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 const BRANCHES = ['Computer', 'IT', 'Electronics', 'Mechanical', 'Other'];
 
+// Helper for every request: sends JSON, parses the reply, and throws the server's error message on a non-2xx status.
 async function api(path, options) {
   const res = await fetch(API + path, {
     headers: { 'Content-Type': 'application/json' },
@@ -23,18 +26,21 @@ export default function CrewRegistry() {
   const [confirmId, setConfirmId] = useState(null);
   const [error, setError] = useState('');
 
+  // Load the crew list from the server; also called after every change to refresh the table.
   const load = useCallback(() => {
     api('/crew').then(setCrew).catch((e) => setError(e.message));
   }, []);
   useEffect(load, [load]);
 
-  // Two-step delete: first click asks, second click deletes.
+  // Two-step delete: the first click asks for confirmation, the second click deletes.
+  // The pending confirmation is cleared after 4 seconds.
   useEffect(() => {
     if (!confirmId) return;
     const t = setTimeout(() => setConfirmId(null), 4000);
     return () => clearTimeout(t);
   }, [confirmId]);
 
+  // PUT when editing an existing member, POST when adding a new one.
   const submit = async (e) => {
     e.preventDefault();
     setError('');

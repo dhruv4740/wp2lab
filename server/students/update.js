@@ -1,3 +1,4 @@
+// Exp 8: update a student. $set changes only the given fields; the updated document is returned.
 import { students } from '../mongo/db.js';
 import { toId } from './find.js';
 

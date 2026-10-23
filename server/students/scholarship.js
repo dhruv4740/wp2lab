@@ -1,3 +1,4 @@
+// Exp 8: query with a comparison operator ($gt) and a descending sort.
 import { students } from '../mongo/db.js';
 
 // Eligible for scholarship: CGPA greater than 9

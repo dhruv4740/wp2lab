@@ -1,3 +1,5 @@
+// Exp 3 + routing: a contact form with a controlled textarea. After submit it redirects to the
+// home page from code, using the navigate function from React Router.
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { PhoneCall, Send, Home, CheckCircle2 } from 'lucide-react';
@@ -7,12 +9,13 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [message, setMessage] = useState('');
 
+  // Ignore empty messages; otherwise show the thank-you view and go Home after 2 seconds.
   const handleSubmit = (e) => {
     e.preventDefault();
     if (message.trim()) {
       setSubmitted(true);
       setTimeout(() => {
-        // Programmatic navigation demo: Navigate to Home after submission
+        // Programmatic navigation: change the route without the user clicking a link.
         navigate('/');
       }, 2000);
     }

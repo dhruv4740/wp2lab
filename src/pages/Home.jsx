@@ -1,3 +1,4 @@
+// Home page: composed from smaller components (Hero, Explainer, HowItWorks, LatestNews).
 import React from 'react';
 import Hero from '../components/Hero';
 import Explainer from '../components/Explainer';

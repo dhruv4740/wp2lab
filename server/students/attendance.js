@@ -1,3 +1,4 @@
+// Exp 8: attendance stored as an array inside each student document.
 import { students } from '../mongo/db.js';
 import { toId } from './find.js';
 
@@ -12,6 +13,7 @@ export async function markAttendance(id, date, present) {
   );
 }
 
+// Percentage of days marked present, rounded; 0 when no days are recorded.
 export function attendancePercent(student) {
   const days = student.attendance || [];
   if (!days.length) return 0;

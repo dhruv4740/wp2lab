@@ -1,3 +1,4 @@
+// Exp 8: sample data. Run with: node server/students/seed.js (replaces all students with 10 records).
 import { students, closeDB } from '../mongo/db.js';
 import { addStudents } from './add.js';
 
@@ -14,11 +15,13 @@ export const SAMPLE = [
   { rollNo: 16010424010, name: 'Ishita Bansal',  branch: 'IT',          state: 'Delhi',       joiningYear: 2023, cgpa: 9.2, subjects: ['WP-II', 'AI', 'CN'] },
 ];
 
+// Clear the collection, then insert the sample students.
 export async function seed() {
   await (await students()).deleteMany({});
   return addStudents(SAMPLE);
 }
 
+// Run the seed only when this file is executed directly, not when it is imported.
 if (process.argv[1] && process.argv[1].endsWith('seed.js')) {
   console.log(`Seeded ${await seed()} students`);
   await closeDB();

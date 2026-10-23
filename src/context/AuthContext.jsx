@@ -1,8 +1,12 @@
+// Context API: shares the logged-in user with every component, without passing props down.
+// The user is kept in localStorage so it survives a page refresh. Demo only, no real server check.
 import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext();
 
+// Wrap the app in this provider; any child can then read the user with the useAuth hook below.
 export function AuthProvider({ children }) {
+  // Lazy initial state: read the saved user once on first render.
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem('somaiyasat_user');
@@ -14,7 +18,7 @@ export function AuthProvider({ children }) {
   });
 
   const login = (username, password) => {
-    // Simulated auth logic
+    // Simulated login: any username is accepted and a callsign is derived from it.
     const userData = {
       username,
       callsign: `VU2-${username.toUpperCase().slice(0, 4)}`,
@@ -51,6 +55,7 @@ export function AuthProvider({ children }) {
   );
 }
 
+// Custom hook so components can write useAuth instead of repeating the context lookup.
 export function useAuth() {
   return useContext(AuthContext);
 }

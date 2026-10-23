@@ -1,9 +1,11 @@
+// Popup that shows the shared AuthForm with Sign in / Register tabs. Closes on Escape or a click outside.
 import React, { useState, useEffect } from 'react';
 import AuthForm from './AuthForm';
 
 export default function AuthModal({ isOpen, onClose }) {
   const [mode, setMode] = useState('login');
 
+  // While the modal is open, listen for the Escape key; the cleanup removes the listener afterwards.
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e) => e.key === 'Escape' && onClose();
@@ -12,6 +14,7 @@ export default function AuthModal({ isOpen, onClose }) {
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
+  // Clicking the dark backdrop closes the modal; stopPropagation keeps clicks inside the box from closing it.
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 400, background: '#0a0e18', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 12, padding: '1.5rem' }}>

@@ -1,3 +1,4 @@
+// Landing banner for the home page: title, short description and two links (route link and in-page anchor).
 import React from 'react';
 import { Link } from 'react-router-dom';
 

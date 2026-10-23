@@ -8,6 +8,7 @@ export default function LatestNews() {
   const [news, setNews] = useState(null);
   const [error, setError] = useState(false);
 
+  // Exp 4: after the first render, request the news and store it in state; show an error if it fails.
   useEffect(() => {
     fetch(`${API}/news`)
       .then((r) => r.json())
