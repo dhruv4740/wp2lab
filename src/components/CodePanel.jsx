@@ -85,12 +85,14 @@ export default function CodePanel() {
   const exps = EXPERIMENTS.filter((e) => e.routes.includes(pathname));
   if (!files) return null;
   return (
+    <>
+    <div style={{ display: 'flex', gap: 6, maxWidth: 1000, margin: '0 auto', padding: '0 1.5rem' }}>{exps.map((e) => <Tag key={e.n} label={`Exp ${e.n}: ${e.title}`} kind="exp" />)}</div>
     <details key={pathname} style={{ maxWidth: 1000, margin: '0 auto', padding: '1rem 1.5rem 3rem', width: '100%' }}>
       <summary style={{ cursor: 'pointer', color: '#38bdf8', fontSize: '0.9rem' }}>{'</>'} Code behind this page</summary>
-      <div style={{ display: 'flex', gap: 6, marginTop: '0.6rem' }}>{exps.map((e) => <Tag key={e.n} label={`Exp ${e.n}: ${e.title}`} kind="exp" />)}</div>
       <div style={{ marginTop: '0.8rem' }}>
         {files.map((f) => <FileBlock key={f} file={f} />)}
       </div>
     </details>
+    </>
   );
 }
