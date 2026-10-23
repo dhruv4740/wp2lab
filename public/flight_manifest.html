@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SomaiyaSat-1 &bull; Orbital Flight Manifest &amp; Telemetry Certificate</title>
+  <style>
+    :root {
+      --bg: #070a13;
+      --card-bg: rgba(15, 23, 42, 0.75);
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+      --purple: #a855f7;
+      --border: rgba(56, 189, 248, 0.2);
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .certificate-container {
+      max-width: 800px;
+      width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 30px rgba(56, 189, 248, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    .watermark {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-25deg);
+      font-size: 5rem;
+      font-weight: 900;
+      color: rgba(56, 189, 248, 0.03);
+      pointer-events: none;
+      white-space: nowrap;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .badge-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--cyan);
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+      font-size: 1.5rem;
+    }
+    .title h1 {
+      font-size: 1.35rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+    .title h1 span {
+      color: var(--cyan);
+    }
+    .title p {
+      font-size: 0.78rem;
+      color: var(--emerald);
+      font-family: 'JetBrains Mono', monospace, Consolas;
+      letter-spacing: 0.08em;
+    }
+    .stamp {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace, Consolas;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    .stamp strong {
+      color: var(--cyan);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .spec-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .spec-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-2px);
+    }
+    .spec-label {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.4rem;
+    }
+    .spec-value {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace, Consolas;
+    }
+    .spec-value.cyan { color: var(--cyan); }
+    .spec-value.emerald { color: var(--emerald); }
+    .spec-value.purple { color: var(--purple); }
+    .node-server-notice {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+    }
+    .node-server-notice code {
+      font-family: 'JetBrains Mono', monospace, Consolas;
+      color: var(--cyan);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .footer {
+      border-top: 1px solid var(--border);
+      padding-top: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace, Consolas;
+    }
+    .sig-line {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald);
+    }
+  </style>
+</head>
+<body>
+  <div class="certificate-container">
+    <div class="watermark">SOMAIYASAT ORBITAL</div>
+
+    <div class="header">
+      <div class="brand">
+        <div class="badge-icon">🛰️</div>
+        <div class="title">
+          <h1>SOMAIYA<span>SAT</span> &bull; 1PQ</h1>
+          <p>AUTHENTICATED ORBITAL FLIGHT MANIFEST</p>
+        </div>
+      </div>
+      <div class="stamp">
+        <div>DOC ID: <strong>KJSS-PQ-2026-05</strong></div>
+        <div>SERVED VIA: <strong>Node.js fs.readFile</strong></div>
+      </div>
+    </div>
+
+    <div class="node-server-notice">
+      <div>⚡</div>
+      <div>
+        <strong>Node.js HTTP Server &amp; File System (fs) Payload:</strong> This document was streamed directly from the ground station storage directory via Node.js core modules <code>http.createServer</code> and <code>fs.readFile()</code> with MIME type <code>text/html</code>.
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="spec-card">
+        <div class="spec-label">Spacecraft Identity</div>
+        <div class="spec-value cyan">SomaiyaSat-1 (1PQ)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Deployer Unit</div>
+        <div class="spec-value purple">SomaiyaPod Release #1</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Target Orbit</div>
+        <div class="spec-value emerald">550 km SSO &bull; 97.4°</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Downlink Carrier</div>
+        <div class="spec-value cyan">437.0000 MHz (UHF)</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">AI Router Core</div>
+        <div class="spec-value purple">KJS-SRS-01 Neural SoC</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">HAM Callsign</div>
+        <div class="spec-value emerald">VU2-SOMI / VU2-SAT</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Active Modulation</div>
+        <div class="spec-value">M17 / Codec2 / SSTV / TT&C</div>
+      </div>
+      <div class="spec-card">
+        <div class="spec-label">Telemetry Status</div>
+        <div class="spec-value emerald">NOMINAL &bull; 100% HEALTH</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="sig-line">
+        <span class="dot"></span>
+        <span>Ground Station Daemon &bull; Node.js V8 Engine Event Loop</span>
+      </div>
+      <div>KJSSE &amp; ReOrbit Finland Mission Control</div>
+    </div>
+  </div>
+</body>
+</html>
