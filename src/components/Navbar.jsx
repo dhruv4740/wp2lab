@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react';
 
 const LINKS = [
   { to: '/telemetry', label: 'Telemetry' },
+  { to: '/monitor', label: 'Monitor' },
   { to: '/uplink', label: 'Uplink' },
   { to: '/gateway', label: 'Gateway' },
   { to: '/news', label: 'News' },

@@ -1,0 +1,13 @@
+/* CSS Module: class names are scoped to PassCard */
+.card { padding: 1.2rem; border-radius: 12px; background: var(--bg-surface); border: var(--border-default); }
+.title { font-family: var(--font-display); font-size: 1.1rem; margin-bottom: 0.2rem; }
+.condition { color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.9rem; }
+.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.stat { padding: 0.6rem; border-radius: 8px; background: var(--bg-primary); border: var(--border-subtle); text-align: center; }
+.value { font-family: var(--font-mono); font-size: 1.15rem; color: var(--accent-cyan); }
+.label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+.badge { display: inline-block; margin-top: 0.9rem; padding: 0.2rem 0.7rem; border-radius: 999px; font-family: var(--font-mono); font-size: 0.75rem; border: 1px solid; }
+.Nominal { color: var(--accent-emerald); }
+.Degraded { color: var(--accent-amber); }
+.Critical { color: var(--accent-rose); }
+@media (max-width: 500px) { .grid { grid-template-columns: 1fr; } }

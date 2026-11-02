@@ -22,6 +22,7 @@ import About from './pages/About';
 import Team from './pages/Team';
 import Company from './pages/Company';
 import Contact from './pages/Contact';
+import PassMonitor from './pages/PassMonitor';
 
 function MainLayout() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function MainLayout() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/telemetry" element={<TelemetryHub />} />
+          <Route path="/monitor" element={<PassMonitor />} />
           <Route path="/uplink" element={<GroundUplink />} />
           <Route path="/gateway" element={<GroundSupport />} />
           <Route path="/news" element={<Dispatches />} />

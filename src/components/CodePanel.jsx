@@ -10,6 +10,7 @@ const FILES = {
   '/': ['components/HowItWorks.jsx', 'components/LatestNews.jsx', 'components/Hero.jsx'],
   '/crew': ['pages/CrewRegistry.jsx', '../server/mongo/api.js', '../server/mongo/crew.js'],
   '/telemetry': ['pages/TelemetryHub.jsx', 'components/TelemetryStreamEngine.jsx', 'components/DraggableQueue.jsx'],
+  '/monitor': ['pages/PassMonitor.jsx', 'services/linkApi.js', 'components/PassCard.jsx', 'components/LinkForm.jsx'],
   '/uplink': ['pages/GroundUplink.jsx'],
   '/gateway': ['pages/GroundSupport.jsx', '../server/groundStationServer.js'],
   '/news': ['pages/Dispatches.jsx', '../server/mongo/api.js'],
