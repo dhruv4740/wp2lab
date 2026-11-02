@@ -19,8 +19,8 @@ Compass: `mongodb://localhost:27017` → `somaiyasat` → `crew`.
 | Thing | Status | Where |
 |---|---|---|
 | Crew add/edit/delete | LIVE (MongoDB) | `src/pages/CrewRegistry.jsx`, `server/mongo/` |
-| Ground server uptime/health | LIVE (Node `os`, `process`) | `server/groundStationServer.js:169` |
-| Battery, telemetry numbers | SIMULATED (`Math.random()` in the server) | `server/groundStationServer.js:118` |
+| Ground server uptime/health | LIVE (Node `os`, `process`) | `server/groundStationServer.js:171` |
+| Battery, telemetry numbers | SIMULATED (`Math.random()` in the server) | `server/groundStationServer.js:163` |
 | Login / register | `localStorage` only, no server | `src/context/AuthContext.jsx:5` |
 
 ## Routes → files (`src/App.jsx`)
@@ -50,7 +50,7 @@ Shared: `components/Navbar.jsx`, `components/AuthModal.jsx`, `components/LaunchO
 | `server/mongo/db.js` | `MongoClient` connection, `crew()` returns the collection |
 | `server/mongo/crew.js` | `addMember`, `findMembers`, `updateMember`, `deleteMember` (native driver: `insertOne`, `find`, `findOneAndUpdate`, `deleteOne`) |
 | `server/mongo/api.js` | `express.Router()` mounted at `/api/crew` (GET, POST, PUT/:id, DELETE/:id), validation, status codes 201/400/404/500; `GET /api/news` proxies the Spaceflight News API |
-| `server/groundStationServer.js` | Plain `http` server: `/api/telemetry:118`, `/api/health:169`, `/api/telecommand:205`, `/api/events:251`, `/api/logs:261`, `/api/events/trigger:285` |
+| `server/groundStationServer.js` | Plain `http` server: `/api/telemetry:163`, `/api/health:171`, `/api/telecommand:174`, `/api/events:192`, `/api/logs:195`, `/api/events/trigger:204` |
 | `server/groundStationClient.js` | Node `http` client that calls the server above |
 
 ## Config
