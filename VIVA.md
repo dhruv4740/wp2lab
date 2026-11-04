@@ -1,177 +1,298 @@
-# Viva guide: SomaiyaSat (Dhruv Kothari, 16010424060)
+# Viva guide: Exp 1, 2, 3, 7, 8 (Dhruv Kothari, 16010424060)
 
-## 30-second pitch
-SomaiyaSat is a React site for a PocketQube satellite mission. The front end (React + Vite, port 3000) talks to two back ends: a core-Node ground-station server (port 8080, Exp 5) and an Express + MongoDB REST API (port 5000, Exp 6-8). For the PS I added the **Pass Monitor** (`/monitor`): pick a ground station, fetch its link data through a Promise, classify risk (Nominal / Degraded / Critical) and show an advisory.
+Line numbers below are for the current `main`. If you edit a file, re-check them.
 
-## Run it
+## Setup before you walk in
 ```
-start-mongo.bat        # MongoDB on 27017
-npm run api            # Express API, 5000
-npm run server         # ground station, 8080
-npm run dev            # site, 3000
-npm run client         # optional: scripted test of the 8080 server
+start-mongo.bat      # MongoDB on 27017
+npm run seed         # 10 sample students (needed for /students)
+npm run api          # Express API, port 5000   (needed by /crew and /students)
+npm run server       # core Node server, 8080   (only for Exp 5 / /gateway)
+npm run dev          # site, port 3000
 ```
+`/students` is not in the navbar. Open it by typing `localhost:3000/students` or from the links on `/experiments`. `/experiments` shows every experiment with its files and live line numbers: use it when she asks "where is X".
 
-## Pass Monitor: how it works (the PS)
-Files: `src/pages/PassMonitor.jsx` (page), `src/services/linkApi.js` (fake API), `src/components/PassCard|RiskAlert|AdvisoryPanel|LinkForm.jsx`, `PassCard.module.css`.
-
-1. Page loads -> `useEffect(() => loadPass(station), [station])` runs.
-2. `loadPass` is `async`: sets `loading`, `await fetchPassData(station)`, then `applyData`.
-3. `fetchPassData` returns `new Promise` that resolves after 700 ms (`setTimeout`), or rejects for an unknown station.
-4. `applyData` calls `classify({snr,battery,temperature})` -> risk; stores everything in ONE `pass` state object (state management).
-5. Children get data by **props**: `PassCard` (values), `RiskAlert` (conditional rendering by risk), `AdvisoryPanel` (text from `ADVISORY[risk]`).
-6. `LinkForm`: controlled inputs + validation (SNR -20..40, battery 0..100, temp -60..100, required numbers) -> calls back to the parent, which runs `applyData` with the manual values.
-7. A second `useEffect` warns in the console when risk is Critical (monitoring).
-8. `AllStations` reuses `PassCard` for every station via `Promise.all(STATIONS.map(fetchPassData))` (component reusability).
-
-Risk rules: Critical if battery<20 or snr<3 or temp>60. Degraded if battery<50 or snr<8 or temp>45. Else Nominal.
-
-Topic -> where: JSX (everywhere) · Props (`PassCard`, `RiskAlert`) · useState/useEffect (`PassMonitor`) · Conditional rendering (loading/error/`RiskAlert`) · Events (`onChange`, `onClick`, `onSubmit`) · State (`pass` object, Context for auth) · CSS Modules (`PassCard.module.css`, `Tag.module.css`) · Promise/async-await (`linkApi.js`, `loadPass`) · Reusability (`PassCard` x many) · API integration (`/api/news` via axios; `fetchPassData`).
-
-## Experiment map
-| Exp | What | Where |
-|---|---|---|
-| 3 | React pages, Router, controlled forms, Context auth | `App.jsx`, `AuthForm.jsx`, `context/AuthContext.jsx` |
-| 4 | axios + async/await, filter by state | `pages/Dispatches.jsx` |
-| 5 | Core Node http server, fs, os, events, JSON, 404/400 | `server/groundStationServer.js` (+ client) |
-| 6 | Express, middleware, REST routes | `server/mongo/api.js` |
-| 7 | MongoDB CRUD (crew) | `mongo/db.js`, `crew.js`, `pages/CrewRegistry.jsx`, `lab/exp7_crud.js` |
-| 8 | Student modules, queries, attendance, grades, scholarship | `server/students/*`, `pages/Students.jsx` |
-
-## Key code to explain
-- **Error boundary** (`ErrorBoundary.jsx`): only class component; `getDerivedStateFromError` stores the error so a fallback shows instead of a white screen. Hooks cannot do this.
-- **Context** (`AuthContext`): provider holds `user`; `useAuth()` reads it anywhere; lazy `useState(() => ...)` reads localStorage once. Demo auth only, no server check.
-- **Dispatches**: `try / catch / finally`; `finally` always clears loading. Filter = `.filter()` on state, derived on each render (no extra state).
-- **Ground server**: callback fires per request; route = `METHOD path`; body arrives as stream chunks (`data`, `end`) then `JSON.parse`; invalid JSON -> 400; unknown route -> 404; 201 for created; OPTIONS 204 for CORS preflight; `fs.appendFile` is async so the server does not block; an `EventEmitter` listener records events.
-- **Mongo**: one shared `MongoClient` (`connectDB` caches it); `ObjectId.isValid` guards bad ids; `findOneAndUpdate` with `returnDocument: 'after'`; `deleteOne` -> `deletedCount === 1`.
-- **Express**: `cors()` + `express.json()` middleware; routers mounted by prefix; `/scholarship` declared before `/:id` or it would match as an id; 4-argument error middleware returns 500; `/api/news` proxies Spaceflight News with an 8 s timeout and falls back to `public/news.json`.
-
-## Likely questions
-**Q: Props vs state?** Props are read-only inputs from the parent; state is data a component owns and changes with its setter, which re-renders it.
-**Q: Why `[station]` in useEffect?** The dependency array makes the effect re-run only when the station changes. `[]` = once on mount; none = every render.
-**Q: Why not mutate state?** React compares references; use `setPass({...})` to give a new object.
-**Q: Promise vs async/await?** async/await is syntax over Promises; `await` pauses the function until the Promise settles; errors from a rejected Promise are caught with `try/catch`.
-**Q: Why `key` in lists?** Lets React identify items between renders.
-**Q: Controlled input?** Its `value` comes from state and `onChange` updates state, so React is the single source of truth.
-**Q: Why `e.preventDefault()`?** Stops the browser's default form submit/page reload.
-**Q: CSS Modules benefit?** Class names are hashed per file, so styles cannot clash.
-**Q: Why a separate Express API when you have a Node server?** The Node server is Exp 5 (core modules, no framework); Express (Exp 6) adds routing, middleware, JSON parsing, and talks to MongoDB.
-**Q: What is CORS?** Browser blocks calls to another origin (port) unless the server sends allow headers; we set them in Node and via `cors()` in Express.
-**Q: 200 vs 201 vs 400 vs 404 vs 500?** OK / Created / bad input / not found / server error.
-**Q: Is the Pass Monitor real data?** No, `fetchPassData` is simulated with a timed Promise; swapping it for `fetch`/axios needs no change in components. News and DB are real.
-**Q: How would you add a new risk level?** Add a rule in `classify`, an entry in `ADVISORY`, a style in `RiskAlert`.
-**Q: Weakness?** Auth is localStorage only; many pages use inline styles rather than modules; no tests.
-
-## Be ready to demo
-1. `/monitor`: switch stations (Delhi GS = Critical), press Refresh, submit an invalid form (e.g. battery 150) to show errors.
-2. `/news`: type a search, click a category.
-3. `/crew`: add, edit, delete a member (shows in MongoDB).
-4. `npm run client`: all checks pass against port 8080.
+**Answer pattern for any question:** (1) which page/file/line, (2) what it does, (3) why it is written that way, (4) what you see as output.
 
 ---
 
-# Part 2: "How did you implement X?" (say it in this order)
+# EXP 1: Basic React pages (JSX, components)
+Files: `pages/Home.jsx`, `components/Hero.jsx`, `pages/Team.jsx`. Routes: `/` and `/about/team`.
 
-**Props / reusability.** "`PassCard` has no hard-coded data. It receives `station, snr, battery, temperature, condition, risk` as props. I render it once for the selected station and once per station in `AllStations` with `.map`, spreading the object: `<PassCard key={p.station} {...p} risk={classify(p)} />`."
+**What is JSX?** HTML-like syntax inside JavaScript. The build tool (Vite/Babel) turns `<h1>Hi</h1>` into `React.createElement('h1', null, 'Hi')`. `{ }` embeds JavaScript expressions.
 
-**useState.** "`PassMonitor` has four: `station` (dropdown), `pass` (all readings + risk + advisory + time in one object), `loading`, `error`. Changing any of them re-renders the page."
+**Where is the home page built, and how?** `Home.jsx:8-17`. It is only composition: `<Hero />`, `<Explainer />`, `<HowItWorks />`, `<LatestNews />` stacked in a div. Each is its own component file. *Why:* small reusable parts, each file does one job.
 
-**useEffect.** "Effect 1 loads data on mount and whenever `station` changes. Effect 2 logs a console warning when the risk is Critical; its dependency list is battery and temperature. `AllStations` has an effect with `[]` so it runs once."
+**Hero.jsx**
+- Line 5: a function component (a function that returns JSX, name starts with a capital letter).
+- Line 19: `<Link to="/telemetry">` is client-side routing: changes the URL and page without a reload.
+- Line 22: `<a href="#about-project">` is a plain anchor that scrolls inside the page. *Difference:* Link = another route; `a` = same page.
+- `style={{ ... }}`: outer braces = JS expression, inner braces = style object. CSS properties are camelCase (`fontSize`).
 
-**Conditional rendering.** "`loading && <p>`, `error && <p>`, `!loading && pass && (cards)`. `RiskAlert` picks colour, emoji and text from the `risk` prop."
+**Team.jsx** (best file to explain Exp 1 in detail)
+- Lines 4-21 `facultyLeads` and 23-45 `studentTeams`: plain arrays of objects = the data.
+- Lines 89-98: `facultyLeads.map(lead => <PersonCard key={lead.name} ... />)` = list rendering. `key` gives React a stable identity per item.
+- Lines 50 and 63: `SectionHeading` and `PersonCard` are small reusable components in the same file. Both take props.
+- Line 63: `{ icon: Icon, ... }` destructures the prop and renames it to `Icon`. *Why:* JSX treats lowercase tags as HTML, so a component must start with a capital letter: `<Icon size={20} />`.
+- Lines 63 and 75: `children` prop: whatever is written between `<PersonCard>...</PersonCard>` is rendered at `{children}`.
+- Line 2: icons come from `lucide-react`, which are React components.
+- Route: `App.jsx:62` is `<Route path="team" element={<Team />} />`, nested under `/about`, so the URL is `/about/team`.
 
-**Event handling.** "`onChange` on the select sets `station`; `onClick` on Refresh calls `loadPass`; `onSubmit` on the form calls `handleSubmit`, which calls `e.preventDefault()` first."
+**Output to expect:** `/about/team` shows two faculty cards (Dr. Umesh Shinde, Dr. Shailesh Nikam) and three subsystem cards. Adding one object to `studentTeams` gives a fourth card with no other code change.
 
-**Promise + async/await.** "`fetchPassData` wraps `setTimeout` in `new Promise`; `resolve` gives the data after 700 ms, `reject` gives an Error for an unknown station. `loadPass` awaits it inside `try/catch/finally`."
+**Q: Why can't a component return two sibling elements?** It must return one root; use a wrapper or a fragment `<> </>` (used at `Team.jsx:52`).
+**Q: Component vs function?** A component is a function that returns JSX and is used as a tag; React calls it and re-calls it when state or props change.
+**Q: Virtual DOM?** React keeps a lightweight copy of the UI, compares old and new after a change, and updates only the real DOM parts that differ.
+**Q: How does the page load at all?** `index.html` has `<div id="root">`; `main.jsx:7` does `ReactDOM.createRoot(...).render(<App />)`; `App.jsx` holds the router.
 
-**Form validation.** "On submit I loop over `FIELDS`. Empty or non-numeric -> 'required and must be a number'. Out of range -> the field's own message. Errors go into an object keyed by field; if it has any key I stop and do not call the parent."
+---
 
-**CSS Modules.** "`PassCard.module.css` is imported as `styles`; `styles.card` becomes a unique class name like `_card_x7f2a`, so no other file can clash. The badge colour uses `styles[risk]`, i.e. `styles.Critical`."
+# EXP 2: Components, props, hooks, conditional rendering, events
+Files: `components/Tag.jsx`, `pages/Students.jsx`, `pages/Experiments.jsx` (also `CrewRegistry.jsx`).
 
-**API integration.** "`Dispatches` calls my Express `/api/news` with axios; the server calls the Spaceflight News API. `CrewRegistry` and `Students` use `fetch` for the MongoDB REST API."
+### Props: `Tag.jsx`
+```jsx
+export default function Tag({ label, kind }) {
+  return <span className={kind === 'exp' ? `${styles.tag} ${styles.exp}` : styles.tag}>{label}</span>;
+}
+```
+- Used at `Experiments.jsx:32` as `<Tag label="Exp 3" kind="exp" />` (blue pill) and at line 47 as `<Tag label={p.name} />` (grey pill).
+- Output: same component, two looks, depending on the `kind` prop. Props are read-only.
+- `Tag.module.css` is a CSS Module: `.tag` and `.exp` become unique generated class names, so they can't clash with other files.
 
-# Part 3: "What does this code do / what is the output?"
+### useState: `Students.jsx:21-27`
+`students` (list), `form` (all input values in one object), `editId` (null = adding, id = editing), `view` ('all' | 'scholarship'), `filter` ({key, value}), `loading`, `error`.
+*Why one `form` object?* Seven inputs, one state, one handler: `set = (k) => (e) => setForm({ ...form, [k]: e.target.value })` (line 39). `[k]` is a computed key: copy all fields, overwrite just one.
 
-### `linkApi.js` `classify`
-| Input (snr, battery, temp) | Output | Why |
+### useEffect: where is it?
+- `Students.jsx:36`: `useEffect(() => { load(); }, [load]);` runs after the first render and again whenever `load` changes.
+- `load` (lines 30-35) is wrapped in `useCallback(..., [view, filter])`, so it is re-created only when `view` or `filter` changes. Net effect: changing the tab or typing in the filter box re-fetches the list. *Why useCallback:* without it `load` would be a new function every render and the effect would loop forever.
+- `Experiments.jsx:15-21`: effect with `[]` = run once on mount; it reads each source file and finds the line number of each pointer, then `setLines(prev => ({...prev, [i]: n}))` (functional update, because several async results write to the same state).
+- `CrewRegistry.jsx:37-42`: effect with a **cleanup**: sets a 4 s timeout and returns `() => clearTimeout(t)`.
+- `AuthModal.jsx:9-14`: adds a `keydown` listener for Escape, cleanup removes it.
+- Dependency array rules: none = every render, `[]` = once, `[a]` = when `a` changes. Cleanup runs before the next effect and on unmount.
+
+### Conditional rendering: all the forms it takes here
+| Where | Code | Meaning |
 |---|---|---|
-| 14, 82, 28 (Mumbai) | Nominal | no rule hit |
-| 9, 46, 47 (Helsinki) | Degraded | battery<50 and temp>45 |
-| 5, 31, 38 (Bengaluru) | Degraded | battery<50, snr<8 |
-| 2, 14, 63 (Delhi) | Critical | battery<20, snr<3, temp>60 |
-| 20, 90, 70 | Critical | temp>60 alone is enough |
-Critical rules are checked first, so they win.
+| `Students.jsx:85` | `{editId ? 'Save' : 'Register'}` | ternary picks the button text |
+| `:86` | `{editId && <button>Cancel</button>}` | `&&`: show only while editing |
+| `:90` | `{error && <p>...</p>}` | show error text only if set |
+| `:95` | `{view === 'all' && (<>filter inputs</>)}` | filter box is hidden on the Scholarship tab |
+| `:107` | `loading ? <p>Loading…</p> : <table>` | spinner vs table |
+| `:124` | `students.length === 0 && <tr>No students found.</tr>` | empty state |
+| `:93-94` | `style={view === 'all' ? btn : box}` | highlights the active tab |
 
-### `fetchPassData('Paris GS')`
-Waits 700 ms, then **rejects** with `Unknown ground station: Paris GS`. In `loadPass` the `catch` runs `setError(...)`, the red message shows, and `finally` clears loading.
+### Events
+`onChange` (every input, line 77-83), `onSubmit` (form, line 76), `onClick` (buttons, 93-94, 119-120). `e.preventDefault()` (line 43) stops the browser's default form submit and page reload. Handlers are passed as functions, not called: `onClick={() => edit(s)}`; `onClick={edit(s)}` would run during render.
 
-### `Promise.all(STATIONS.map(fetchPassData))`
-Starts 4 requests at once. Because each takes 700 ms, all finish in about 700 ms (not 2.8 s). Result: an array of 4 objects in station order. If one rejected, the whole `Promise.all` would reject.
+### What happens when I click "Register"? (say it step by step)
+1. `submit` (line 42) runs, `preventDefault`, clears the error.
+2. `editId` is null so it sends `POST /students` (line 46) with `JSON.stringify(form)`.
+3. `api()` (lines 10-15) calls `fetch`, parses JSON, throws if the status is not 2xx.
+4. Server `routes.js:49`: validates, converts types (`fields`), inserts in MongoDB, replies 201.
+5. Back in React: `setForm(EMPTY)`, `setEditId(null)`, `load()` re-fetches, state changes, the table re-renders with the new row.
+If the server rejects it (e.g. CGPA 11), the `catch` stores the server's message in `error` and the red text appears.
 
-### LinkForm
-- Battery `150` -> "Battery must be between 0% and 100%." Nothing is sent to the parent.
-- SNR `abc` -> "Link SNR (dB) is required and must be a number."
-- All empty -> three errors at once.
-- `12`, `45`, `30` -> valid; `onSubmitData({snr:12,battery:45,temperature:30})` -> card shows "Manual entry", risk **Degraded** (battery<50).
-- Why `Number(...)`: input values are strings, and `'9' < 8` style comparisons would be wrong.
+### Output questions
+- Click **Edit** on a row -> `edit(s)` (line 66) copies the row into `form` (subjects array joined as `"WP-II, DBMS, OS"`), sets `editId`, button turns to "Save", "Cancel" appears.
+- Click **Delete** -> `window.confirm("Delete Aarav Mehta?")`; OK -> `DELETE /students/<id>` -> reload.
+- Pick filter "State", type `Gujarat` -> request `GET /students?state=Gujarat` (line 32, `encodeURIComponent` makes unsafe characters URL-safe) -> only Diya Shah.
+- Filter "Joining year" `2023` -> Aarav, Rohan, Kabir, Meera, Ishita (from `seed.js`).
+- Click the Scholarship tab -> `GET /students/scholarship` -> students with CGPA above 9, highest first; the filter inputs disappear (line 95).
 
-### `setPass({ ...data, risk, advisory, lastUpdated })`
-Spread copies all fields of `data` into a new object, then adds three. A new object means React sees a change and re-renders.
+**Q: Why not change state directly (`form.name = 'x'`)?** React only re-renders when it sees a new value from the setter; direct mutation is not detected.
+**Q: `setState` is async?** Updates are batched; the new value is visible on the next render, not on the next line. Use the functional form `setX(prev => ...)` when the new value depends on the old.
+**Q: What is `key` for?** Stable identity: `key={s._id}` (line 114) lets React update the right row when the list changes. Index keys break when rows are deleted or reordered.
+**Q: Lifting state / Context?** Shared user: `context/AuthContext.jsx` (Context API) avoids passing `user` through every component.
 
-### `useEffect(() => loadPass(station), [station])`
-Output on first load: "Fetching link data…" for 700 ms, then the Mumbai card + green RiskAlert. Select Delhi: loading again, then a red card, "CRITICAL: switch SomaiyaSat to safe mode.", and the console shows `Critical link state at Delhi GS: battery 14%, 63°C`.
+---
 
-### `TelemetryStreamEngine` effect
-`setInterval` adds a packet every `pollInterval` ms (default 2000). `return () => clearInterval(timer)` is the cleanup: it runs before the effect re-runs (Pause pressed, rate changed) and on unmount, so timers never pile up. `setPackets(prev => [packet, ...prev.slice(0, 5)])` puts the newest first and keeps at most 6.
+# EXP 3: Forms and validation
+Files: `components/AuthForm.jsx`, `pages/LoginForm.jsx`, `pages/RegisterForm.jsx`, `components/AuthModal.jsx`, `pages/Contact.jsx`, routes in `App.jsx`.
 
-### `CrewRegistry`
-- `useEffect(load, [load])` + `useCallback`: `load` keeps the same identity between renders, so the effect runs once.
-- `remove`: first click sets `confirmId` (button shows "Confirm?"); a second click on the same id sends DELETE. The timeout effect resets it after 4 s, and its cleanup cancels the timer.
-- `submit` sends PUT `/crew/:id` when `editId` is set, otherwise POST `/crew`; afterwards it clears the form and calls `load()`.
-- `api()` throws on non-2xx, so the error message from the server (e.g. "name and branch are required") appears in red.
+### Where do I see login/register?
+- Navbar "Sign in" button (`Navbar.jsx:59`) opens `AuthModal` (popup). Pages `/login` and `/register` also exist (`App.jsx:58-59`). Both use the **same** `AuthForm` with a `mode` prop: `"login"` or `"register"`.
 
-### Server routes: request -> response
-| Request | Response |
+### AuthForm line by line
+- Line 12: one state object `v` for all fields (name, email, password, role, agree). Line 13: `errors` object, one message per field.
+- Line 15: `set(k)` returns a handler for field `k`; for the checkbox it reads `e.target.checked`, for others `e.target.value`. This makes every input **controlled**: its `value` is `v[key]` (line 37), so React state is the single source of truth.
+- Lines 17-31 `submit`:
+  - 19: `preventDefault()`.
+  - 21: name empty -> "Name is required" / "Username is required" (text depends on `isReg`).
+  - 22: register only: email must match `/^\S+@\S+\.\S+$/` = non-space chars, `@`, non-space chars, `.`, non-space chars.
+  - 23: password at least 6 chars. 24: register only: terms checkbox must be ticked.
+  - 26-27: `setErrors(err)`; if the object has any key, `return` (stop). Otherwise `register(...)` or `login(...)`, then `onDone?.()` (optional call: only if the parent passed it).
+- `<form onSubmit={submit} noValidate>` (line 43): `noValidate` switches off the browser's built-in popups so our own messages show. (`Students.jsx` does the opposite: it uses `required` and the browser's validation.)
+- Line 34: `field(...)` is a helper that renders label + input + error, so four inputs don't repeat the markup.
+- Dropdown: `<select value={v.role} onChange={set('role')}>` with options from `ROLES.map`. Checkbox: `checked={v.agree}`.
+
+### Output cases
+| Input | Result |
 |---|---|
-| GET :8080/api/telemetry | 200 JSON with random battery 75-94 %, snr 14.5-22.5 dB; appends a line to `logs/telemetry.log` |
-| POST :8080/api/telecommand body `{"opcode":"0x02"}` | 201 `{success:true, record:{commandId:"CMD-...", opcode:"0x02", status:"DISPATCHED_TO_UPLINK_QUEUE"}}` |
-| POST :8080/api/telecommand body `{bad` | 400 `Invalid JSON body` (JSON.parse threw) |
-| GET :8080/nothing | 404 `Endpoint not found` |
-| GET :5000/api/crew | 200 array, newest first |
-| POST :5000/api/crew `{"name":"A"}` | 400 `name and branch are required` |
-| PUT :5000/api/crew/abc | 404 `not found` (invalid ObjectId -> `toId` returns null) |
-| GET :5000/api/students/scholarship | students with cgpa > 9, highest first |
-| GET :5000/api/students?state=Gujarat | students whose `state` equals Gujarat |
+| Register: name "Dhruv", email "d@x", password "abc", box unticked | errors: "Enter a valid email", "At least 6 characters", "Please accept the terms" |
+| Login: username "dhruv", password "secret1" | no errors; navbar shows callsign **VU2-DHRU**; saved in `localStorage` key `somaiyasat_user`; page goes to `/telemetry` |
+| Register: "Dhruv Kothari" + valid data | callsign `VU2-DHRU` (`AuthContext`: uppercase, strip non-letters, first 4) |
+| Reload the page | still logged in (the lazy `useState(() => localStorage...)` in `AuthContext`) |
+| Sign out | user cleared from state and localStorage, goes to `/` |
 
-### Mongo operators
-- `{ $set: { name, branch } }` changes only those fields.
-- `{ $push: { attendance: {date, present} } }` appends to an array field.
-- `{ $pull: { grades: { subject } } }` removes the matching entry (used before re-adding marks so a subject is never duplicated).
-- `{ cgpa: { $gt: 9 } }` greater than 9.
-- `find({ subjects: 'Maths' })` on an array field matches documents whose array contains it.
-- `attendancePercent`: 3 present out of 4 days -> `Math.round(3/4*100)` = **75**; no days -> 0.
-- `exp7_crud.js` prints: Connected Successfully, Database Created, Document inserted successfully + id, the Raj document, "1 document matched.", "1 document modified.", the updated Raj (city Mumbai, salary 50000), "Successfully deleted one document.", "Remaining documents: 1" (the Admin doc).
+### AuthModal (`AuthModal.jsx`)
+- `useState('login')` for the tab; lines 22-26 render two buttons from `['login','register'].map`.
+- Line 28: `<AuthForm key={mode} .../>`: changing `key` makes React throw away and recreate the form, so typed text and errors reset when you switch tabs.
+- Line 19-20: backdrop `onClick={onClose}`; the inner box has `onClick={(e) => e.stopPropagation()}` so clicks inside don't bubble up and close it.
+- Lines 9-14: Escape key effect (with cleanup). Line 16: `if (!isOpen) return null` = render nothing when closed.
 
-### Core Node server details she may point at
-- `http.createServer((req, res) => {...})`: the callback runs for every request.
-- `new URL(req.url, 'http://host')`: separates the path from the query string, so `/api/logs?x=1` still matches `/api/logs`.
-- `req.on('data')` / `req.on('end')`: the body is a stream; you must wait for `end` before parsing.
-- `res.writeHead(status, headers)` then `res.end(body)`: sets the status line and sends the body.
-- `fs.readFile(path, 'utf8', cb)`: non-blocking; the reply is sent inside the callback. `fs.mkdirSync` at startup is blocking but harmless because it runs once before listening.
-- `EventEmitter`: `emit('telemetry:logged', data)` triggers every `.on('telemetry:logged', ...)` listener; here the listener logs `[EVENT] ...` and stores the event in `recentEvents` (max 50).
-- `process.uptime()`, `process.memoryUsage()`, `os.cpus()`: real values from the running machine.
+### Routing and navigation
+- `App.jsx:60-65`: nested routes. `/about` renders `About`, whose `<Outlet />` (`About.jsx:55`) shows the child (Team or Company). `index` route redirects `/about` to `team` with `<Navigate>`.
+- `About.jsx:44-49`: `NavLink` and `linkStyle = ({ isActive }) => ...` highlights the active tab (line 9).
+- `Navbar.jsx:47`: NavLink with `className={({isActive}) => ...}`.
+- `App.jsx:66`: wildcard route `path="*"` redirects unknown URLs home.
+- **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:13-22`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:57`).
+- Link vs useNavigate: `Link` = user clicks; `navigate()` = code decides (after a login, after a timer).
 
-### If she changes something live (be ready)
-- **Add a 5th station:** add one line to `PASSES` in `linkApi.js`. Dropdown, cards and `Promise.all` update automatically because they use `STATIONS = Object.keys(PASSES)`.
-- **Change a threshold:** edit the numbers in `classify`.
-- **Change loading delay:** the `700` in `setTimeout`.
-- **Make Refresh show new values:** `PASSES` is static, so Refresh returns the same data; say it is simulated and a real endpoint would return new values.
-- **Break it on purpose:** change a station name in `fetchPassData(...)` to show the reject -> catch -> red message path.
+### Contact form
+Controlled `<textarea value={message}>` (line ~80), `if (message.trim())` ignores empty/space-only messages, `submitted` state switches the form for a success message (`!submitted ? <form> : <success>`, line 72).
 
-# Part 4: honest answers for hard questions
-- **"Is this real satellite data?"** No. The Pass Monitor and telemetry are simulated; the news feed and MongoDB data are real.
-- **"Why is login not secure?"** It is a demo: any username works and the user is saved in localStorage. A real system would verify on the server with hashed passwords and tokens.
-- **"Why `key` and not index?"** Stable ids (station name, `_id`) let React match items correctly when the list changes; index breaks on reorder/delete.
-- **"What happens if the API is down?"** Dispatches shows "Could not load news"; the Express route itself falls back to `public/news.json`.
-- **"Why two servers on 8080 and 5000?"** Exp 5 asked for core Node without a framework; Exp 6-8 use Express and MongoDB. They are independent.
-- **"What would you improve?"** Real API for pass data, server-side auth, move inline styles to CSS Modules, add tests.
+**Q: Controlled vs uncontrolled?** Controlled: value in state, changed by `onChange`. Uncontrolled: DOM keeps the value, read with a `ref`. We use controlled so validation and resets are easy.
+**Q: Why store errors as an object?** One entry per field, so each field shows only its own message, and `Object.keys(err).length` tells whether anything failed.
+**Q: Is the login secure?** No: demo only, any username works, no server check, user saved in localStorage. Real systems verify on a server and use hashed passwords + tokens.
+
+---
+
+# EXP 7: MongoDB CRUD
+Files: `server/lab/exp7_crud.js` (the experiment script), `server/mongo/db.js`, `server/mongo/crew.js`, `server/mongo/api.js`; frontend: `pages/CrewRegistry.jsx` (route `/crew`).
+
+**Run the experiment:** `npm run exp7` (MongoDB must be running). It prints to the terminal, it has no web page. The same driver and operations power `/crew`.
+
+### exp7_crud.js, program by program
+| Lines | Program | Code | Meaning |
+|---|---|---|---|
+| 5 | URI | `mongodb://localhost:27017/company` | local server, database `company` |
+| 8, 11 | connect | `new MongoClient(uri)`, `await client.connect()` | open connection (async) |
+| 13-14 | db + collection | `client.db('company').collection('Employee')` | created lazily when first document is inserted |
+| 15-16 | create DB | `deleteMany({})` then `insertOne({name:'Admin'})` | clean start and force the DB to exist |
+| 19-23 | **Insert** | `insertOne(doc)` -> `insertedId` | adds Raj; `_id` is auto-generated ObjectId |
+| 25-27 | **Read** | `find({ name: 'Raj' }).toArray()` | `find` returns a cursor, `toArray` makes it an array |
+| 29-35 | **Update** | `updateOne(filter, { $set: {...} })` | change only city and salary; returns matched/modified counts |
+| 37-40 | **Delete** | `deleteOne(filter)`, `countDocuments()` | `deletedCount === 1` means one removed |
+| 41-43 | close | `finally { await client.close() }` | closes even if something failed |
+
+**Expected output (in order):**
+```
+Connected Successfully
+Database Created
+Document inserted successfully
+Inserted ID: 65f...   (24 hex characters)
+
+Read:
+[ { _id: new ObjectId('...'), name: 'Raj', age: 24, city: 'Noida', salary: 40000, technology: [ 'C', 'C++', 'Java' ] } ]
+
+1 document matched.
+1 document modified.
+{ _id: ..., name: 'Raj', age: 24, city: 'Mumbai', salary: 50000, technology: [...] }
+
+Successfully deleted one document.
+Remaining documents: 1
+```
+"Remaining 1" = the Admin document. Run it again and it still works because line 15 clears the collection first.
+
+**Q: Why `await` everywhere?** Every driver call talks to the database over the network and returns a Promise; without `await` you'd get a pending Promise instead of the result and the next line would run too early.
+**Q: Why `$set`?** Without it, `updateOne(filter, {city:'Mumbai'})` is an error (update needs an operator); `$set` changes only the listed fields and keeps the rest.
+**Q: matchedCount vs modifiedCount?** Matched = documents the filter found; modified = those that actually changed. Updating to the same values gives matched 1, modified 0.
+**Q: What is ObjectId?** 12-byte unique id MongoDB adds as `_id`; shown as 24 hex characters.
+**Q: SQL vs MongoDB?** Collection ~ table, document ~ row, but documents are flexible JSON (arrays and nested objects, no fixed columns).
+**Q: Why `finally`?** To close the connection whether the code succeeded or threw.
+
+### Where is MongoDB used in the website? (frontend + server)
+- **Page:** `/crew` -> `CrewRegistry.jsx`. Add a member -> row appears; Edit; Delete (button turns "Confirm?" first, `remove` line 57; a timeout clears it after 4 s, lines 37-42).
+- `CrewRegistry.jsx:9` `api()` helper with `fetch`; `:23-27` state; `:30-33` load + effect; `:44` `submit` (PUT when `editId`, else POST); `:89` `crew.map` renders rows; `:102` empty state.
+- **Server:** `api.js:22` GET list, `:25` POST, `:31` PUT, `:38` DELETE, mounted at `:44` as `/api/crew`.
+- **`crew.js`:** `addMember` (insertOne, lines 10-14: generates a callsign like `VU2-4821`), `findMembers` (find + `sort({joinedAt:-1})`, newest first), `updateMember` (`findOneAndUpdate` with `returnDocument: 'after'` so you get the new version back), `deleteMember` (deleteOne, true only if `deletedCount === 1`).
+- **`db.js`:** `connectDB()` creates the client once and reuses it (`if (!client)`), database `somaiyasat`; `crew()` returns the `crew` collection. *Why share one client:* opening a connection per request is slow and exhausts connections.
+- `toId` (`crew.js:7`): `ObjectId.isValid(id) ? new ObjectId(id) : null`. A string id from the URL is not an ObjectId, and an invalid one would crash the driver, so we return null and the route answers 404.
+- Show it live: open MongoDB Compass at `mongodb://localhost:27017`, database `somaiyasat` -> `crew`, add a member on the site and refresh Compass.
+
+---
+
+# EXP 8: React + Node REST API (Student Management)
+Files: frontend `pages/Students.jsx` (route `/students`); backend `server/students/routes.js` (+ `find.js`, `add.js`, `update.js`, `delete.js`, `attendance.js`, `grades.js`, `scholarship.js`, `seed.js`).
+
+### Architecture in one line
+`Students.jsx` --fetch--> Express (`api.js` mounts `studentRouter` at `/api/students`, `api.js:45`) --> `routes.js` --> function in `find/add/update/delete.js` --> MongoDB `students` collection. Response travels back as JSON.
+
+### REST routes (`routes.js`)
+| Line | Route | Does | Status |
+|---|---|---|---|
+| 30 | `GET /api/students` (`?state= ?year= ?subject=`) | list/filter (`find.js`) | 200 |
+| 39 | `GET /api/students/scholarship` | `cgpa > 9`, highest first | 200 |
+| 42 | `GET /api/students/:id` | one student + `attendancePercent` | 200 / 404 |
+| 49 | `POST /api/students` | create | 201 / 400 |
+| 55 | `PUT /api/students/:id` | update | 200 / 400 / 404 |
+| 63 | `DELETE /api/students/:id` | delete | 200 / 404 |
+| 69 | `POST /api/students/:id/attendance` | `$push` one day | 201 / 400 / 404 |
+| 78 | `POST /api/students/:id/grades` | add/replace marks (0-100) | 201 / 400 / 404 |
+
+**Why is `/scholarship` above `/:id` (line 39 vs 42)?** Express matches in order; if `/:id` came first, the word "scholarship" would be taken as an id.
+
+### Backend code worth knowing
+- `routes.js:15-23` `fields(b)`: the request body is text; convert to real types: `Number(b.rollNo)`, `String(b.name).trim()`, subjects split on commas into an array, empty entries removed.
+- `routes.js:25-27` `valid(b)`: required fields present and CGPA between 0 and 10. Invalid -> `res.status(400).json({ error })`.
+- `find.js`: `findByState` -> `find({ state })`; `findByJoiningYear` -> `find({ joiningYear: Number(year) })` (query strings are text, so convert); `findBySubject` -> `find({ subjects: subject })` (matches when the array contains the value).
+- `scholarship.js`: `find({ cgpa: { $gt: 9 } }).sort({ cgpa: -1 })`. `$gt` = greater than, `-1` = descending.
+- `attendance.js`: `$push` appends `{date, present}` to the `attendance` array; `attendancePercent` = present days / total days x 100, rounded, 0 if no days. 3 present of 4 -> 75.
+- `grades.js`: `$pull` removes the old entry for that subject, then `$push` adds the new one -> a subject never appears twice.
+- `update.js`: `findOneAndUpdate({_id}, {$set: fields}, {returnDocument:'after'})`. `delete.js`: `deleteOne`, `deletedCount === 1`.
+- `seed.js` (`npm run seed`): `deleteMany({})` then `insertMany` of 10 students; each gets empty `attendance` and `grades` arrays and `createdAt`.
+- `new` students: `add.js` inserts `{ attendance: [], grades: [], ...s, createdAt }`.
+
+### Frontend code (see Exp 2 for state/effects)
+- `Students.jsx:5`: `API` base URL from `VITE_API_URL` or `http://localhost:5000/api`.
+- `:10-15` `api()`: wraps `fetch`, sets JSON header, `await res.json()`, throws `Error(data.error)` for non-2xx. *Why:* `fetch` does not reject on 404/400 by itself; the `!res.ok` check turns them into errors that the `catch` shows.
+- `:30-36` load + effect, `:42-53` submit (POST/PUT), `:55-63` delete with `window.confirm`, `:66-69` edit.
+- `:113` `students.map(s => <tr key={s._id}>...)`, `:117` `(s.subjects || []).join(', ')`: safe if `subjects` is missing.
+- CORS: `api.js:11` `app.use(cors())` lets the page on port 3000 call the API on port 5000 (different origin).
+
+### Test it without the website (good for the oral)
+```
+curl http://localhost:5000/api/students
+curl "http://localhost:5000/api/students?state=Gujarat"
+curl http://localhost:5000/api/students/scholarship
+curl -X POST http://localhost:5000/api/students -H "Content-Type: application/json" -d "{\"name\":\"Test\"}"
+```
+The last one returns **400** `rollNo, name, branch, state, joiningYear and cgpa (0-10) are required`.
+
+**Q: What is REST?** URLs name resources (`/students`), HTTP methods say the action (GET read, POST create, PUT update, DELETE remove), status codes report the outcome.
+**Q: PUT vs POST?** POST creates a new resource; PUT replaces/updates an existing one at a known id.
+**Q: What is `req.params` vs `req.query` vs `req.body`?** `params`: `/:id` part; `query`: after `?`; `body`: JSON sent in the request (parsed by `express.json()`, `api.js:12`).
+**Q: What is middleware?** A function that runs between request and route handler: `cors()` adds headers, `express.json()` parses the body.
+**Q: What does MERN stand for here?** MongoDB (database), Express (API), React (front end, `Students.jsx`), Node (runtime for Express and the driver).
+**Q: Why async/await in routes?** Database calls return Promises; the response is sent only after the data arrives.
+**Q: Why not call MongoDB from React directly?** The browser can't (and must not) hold database credentials; the API validates input and decides what is exposed.
+
+---
+
+# If she asks me to change something live
+| Ask | Do |
+|---|---|
+| Add a field (e.g. `email`) to students | `EMPTY` and form input in `Students.jsx`, a column in the table, `fields()` and `valid()` in `routes.js` |
+| Change CGPA scholarship cut-off | `scholarship.js` `$gt: 9` |
+| Make password minimum 8 | `AuthForm.jsx:23` |
+| Add a new branch in dropdown | `BRANCHES` array (`Students.jsx:6`, `CrewRegistry.jsx:6`) |
+| Change redirect after login | `LoginForm.jsx:11` |
+| Add a 5th team card | add an object to `studentTeams` in `Team.jsx` |
+| Change the timer on Crew delete confirm | `4000` in `CrewRegistry.jsx` |
+| New student sort order | `findAll` in `find.js`: `sort({ rollNo: 1 })` (use -1 for descending) |
+
+# Hard questions: honest answers
+- **Why inline styles?** Fast to write; shared tokens are in `index.css` and two components use CSS Modules (`Tag`, `PassCard`). Improvement: move repeated style objects into modules.
+- **Is login real?** No, localStorage demo.
+- **Is the data real?** Students and crew are real MongoDB documents; telemetry and the Pass Monitor are simulated; news comes from a real public API.
+- **What would you improve?** Server-side auth, input validation library, pagination, tests, replace inline styles.
+
+---
+
+# Short revision for Exp 4, 5, 6 and the PS (second priority)
+- **Exp 4** `Dispatches.jsx`: `axios.get` in an async function with `try/catch/finally`; `useEffect(..., [])` loads once; `.filter()` by search text and category (line 46); conditional rendering for loading/error/list. Axios vs fetch: axios parses JSON automatically (`response.data`) and rejects on non-2xx.
+- **Exp 5** `server/groundStationServer.js`: `http.createServer` (137), `new URL` (138), `fs.readFile` (154, 196), `fs.appendFile` (42), `JSON.parse` (54), 404 (211), 400 for bad JSON (56), EventEmitter (64-79). Test with `npm run client`.
+- **Exp 6** `server/mongo/api.js` + `students/routes.js`: `express.json()` and `cors()` middleware (11-12), `Router()` modular routers, mounted at 44-45, 400 validation, 404 not found, error-handling middleware with 4 arguments (82).
+- **PS: Pass Monitor** (`/monitor`): `fetchPassData` returns a Promise (700 ms `setTimeout`); `loadPass` uses async/await with try/catch/finally; one `pass` state object; `classify` gives Nominal/Degraded/Critical (Critical if battery<20, snr<3 or temp>60; Degraded if battery<50, snr<8 or temp>45); `PassCard` is reused for every station (props + `PassCard.module.css`); `LinkForm` validates SNR -20..40, battery 0..100, temp -60..100.
