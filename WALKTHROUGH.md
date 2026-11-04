@@ -197,7 +197,7 @@ Plain words:
 
 This page lets you list, filter, add, edit and delete students.
 
-**Step 1: State (lines 21-27), the page's memory.**
+**Step 1: State (lines 29-35), the page's memory.**
 ```jsx
 const [students, setStudents] = useState([]);
 const [form, setForm] = useState(EMPTY);
@@ -220,7 +220,7 @@ Plain words: each line makes a variable plus a function to change it.
 | `loading` | true while waiting for the server |
 | `error` | an error message to show, or empty |
 
-**Step 2: Fetch the data when the page opens (lines 30-36).**
+**Step 2: Fetch the data when the page opens (lines 38-48).**
 ```jsx
 const load = useCallback(() => {
   let path = view === 'scholarship' ? '/students/scholarship' : '/students';
@@ -236,7 +236,7 @@ Plain words:
 - `useCallback(..., [view, filter])` keeps `load` the same function until `view` or `filter` change. Without it, `load` would be a "new" function on every redraw and the effect would run forever.
 - Result: open the page, students load. Click the Scholarship tab or type in the filter, `view`/`filter` change, `load` changes, the effect re-runs, the list updates.
 
-**Step 3: The helper that talks to the server (lines 10-15).**
+**Step 3: The helper that talks to the server (lines 15-20).**
 ```jsx
 async function api(path, options) {
   const res = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...options });
@@ -251,7 +251,7 @@ Plain words:
 - `res.ok` is false for errors like 400 or 404; `fetch` does not treat those as failures by itself, so we `throw` an Error to make them reach the `catch` where the page shows the message.
 - Every request in this page goes through this one helper, so the code is written once.
 
-**Step 4: Typing in the boxes (events) (line 39 and 77-83).**
+**Step 4: Typing in the boxes (events) (line 51 and 93-99).**
 ```jsx
 const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 ...
@@ -262,7 +262,7 @@ Plain words:
 - `set('name')` returns a function that updates just the `name` part of `form`. `{ ...form, [k]: e.target.value }` = copy the whole form, then replace the one field called `k` with what was typed.
 - Because `value={form.name}` shows the state and `onChange` updates it, React always knows what's in the box. This is a **controlled input**.
 
-**Step 5: Add or edit (lines 42-53).**
+**Step 5: Add or edit (lines 54-65).**
 ```jsx
 const submit = async (e) => {
   e.preventDefault();
@@ -291,11 +291,11 @@ Plain words:
 | 107 | `loading ? <p>Loading…</p> : <table>...` | show "Loading…" until data arrives, then the table |
 | 124 | `{students.length === 0 && <tr>No students found.</tr>}` | message when the list is empty |
 
-**Step 7: Draw the table (lines 113-123).** Same idea as the team cards: `students.map((s) => <tr key={s._id}> ... </tr>)` draws one table row per student. `s._id` is the unique id MongoDB gave that student, used as the `key`.
+**Step 7: Draw the table (lines 133-144).** Same idea as the team cards: `students.map((s) => <tr key={s._id}> ... </tr>)` draws one table row per student. `s._id` is the unique id MongoDB gave that student, used as the `key`.
 
 **Step 8: Edit and delete.**
-- Edit button runs `edit(s)` (line 66): copies that student's values into `form` and sets `editId`, so the same form now acts as an edit form.
-- Delete button runs `remove(s)` (line 55): `window.confirm` asks "Delete Aarav?"; if you say yes, it sends a DELETE request and reloads.
+- Edit button runs `edit(s)` (line 79): copies that student's values into `form` and sets `editId`, so the same form now acts as an edit form.
+- Delete button runs `remove(s)` (line 68): `window.confirm` asks "Delete Aarav?"; if you say yes, it sends a DELETE request and reloads.
 
 ---
 

@@ -60,13 +60,13 @@ export default function Tag({ label, kind }) {
 - Output: same component, two looks, depending on the `kind` prop. Props are read-only.
 - `Tag.module.css` is a CSS Module: `.tag` and `.exp` become unique generated class names, so they can't clash with other files.
 
-### useState: `Students.jsx:21-27`
+### useState: `Students.jsx:29-35`
 `students` (list), `form` (all input values in one object), `editId` (null = adding, id = editing), `view` ('all' | 'scholarship'), `filter` ({key, value}), `loading`, `error`.
-*Why one `form` object?* Seven inputs, one state, one handler: `set = (k) => (e) => setForm({ ...form, [k]: e.target.value })` (line 39). `[k]` is a computed key: copy all fields, overwrite just one.
+*Why one `form` object?* Seven inputs, one state, one handler: `set = (k) => (e) => setForm({ ...form, [k]: e.target.value })` (line 51). `[k]` is a computed key: copy all fields, overwrite just one.
 
 ### useEffect: where is it?
-- `Students.jsx:36`: `useEffect(() => { load(); }, [load]);` runs after the first render and again whenever `load` changes.
-- `load` (lines 30-35) is wrapped in `useCallback(..., [view, filter])`, so it is re-created only when `view` or `filter` changes. Net effect: changing the tab or typing in the filter box re-fetches the list. *Why useCallback:* without it `load` would be a new function every render and the effect would loop forever.
+- `Students.jsx:48`: `useEffect(() => { load(); }, [load]);` runs after the first render and again whenever `load` changes.
+- `load` (lines 38-43) is wrapped in `useCallback(..., [view, filter])`, so it is re-created only when `view` or `filter` changes. Net effect: changing the tab or typing in the filter box re-fetches the list. *Why useCallback:* without it `load` would be a new function every render and the effect would loop forever.
 - `Experiments.jsx:15-21`: effect with `[]` = run once on mount; it reads each source file and finds the line number of each pointer, then `setLines(prev => ({...prev, [i]: n}))` (functional update, because several async results write to the same state).
 - `CrewRegistry.jsx:37-42`: effect with a **cleanup**: sets a 4 s timeout and returns `() => clearTimeout(t)`.
 - `AuthModal.jsx:9-14`: adds a `keydown` listener for Escape, cleanup removes it.
@@ -75,29 +75,29 @@ export default function Tag({ label, kind }) {
 ### Conditional rendering: all the forms it takes here
 | Where | Code | Meaning |
 |---|---|---|
-| `Students.jsx:85` | `{editId ? 'Save' : 'Register'}` | ternary picks the button text |
-| `:86` | `{editId && <button>Cancel</button>}` | `&&`: show only while editing |
-| `:90` | `{error && <p>...</p>}` | show error text only if set |
-| `:95` | `{view === 'all' && (<>filter inputs</>)}` | filter box is hidden on the Scholarship tab |
-| `:107` | `loading ? <p>Loading…</p> : <table>` | spinner vs table |
-| `:124` | `students.length === 0 && <tr>No students found.</tr>` | empty state |
-| `:93-94` | `style={view === 'all' ? btn : box}` | highlights the active tab |
+| `Students.jsx:101` | `{editId ? 'Save' : 'Register'}` | ternary picks the button text |
+| `:102` | `{editId && <button>Cancel</button>}` | `&&`: show only while editing |
+| `:107` | `{error && <p>...</p>}` | show error text only if set |
+| `:113` | `{view === 'all' && (<>filter inputs</>)}` | filter box is hidden on the Scholarship tab |
+| `:127` | `loading ? <p>Loading…</p> : <table>` | spinner vs table |
+| `:144` | `students.length === 0 && <tr>No students found.</tr>` | empty state |
+| `:111-112` | `style={view === 'all' ? btn : box}` | highlights the active tab |
 
 ### Events
-`onChange` (every input, line 77-83), `onSubmit` (form, line 76), `onClick` (buttons, 93-94, 119-120). `e.preventDefault()` (line 43) stops the browser's default form submit and page reload. Handlers are passed as functions, not called: `onClick={() => edit(s)}`; `onClick={edit(s)}` would run during render.
+`onChange` (every input, lines 93-99), `onSubmit` (form, line 92), `onClick` (buttons, 111-112, 139-140). `e.preventDefault()` (line 55) stops the browser's default form submit and page reload. Handlers are passed as functions, not called: `onClick={() => edit(s)}`; `onClick={edit(s)}` would run during render.
 
 ### What happens when I click "Register"? (say it step by step)
-1. `submit` (line 42) runs, `preventDefault`, clears the error.
-2. `editId` is null so it sends `POST /students` (line 46) with `JSON.stringify(form)`.
-3. `api()` (lines 10-15) calls `fetch`, parses JSON, throws if the status is not 2xx.
+1. `submit` (line 54) runs, `preventDefault`, clears the error.
+2. `editId` is null so it sends `POST /students` (line 58) with `JSON.stringify(form)`.
+3. `api()` (lines 15-20) calls `fetch`, parses JSON, throws if the status is not 2xx.
 4. Server `routes.js:49`: validates, converts types (`fields`), inserts in MongoDB, replies 201.
 5. Back in React: `setForm(EMPTY)`, `setEditId(null)`, `load()` re-fetches, state changes, the table re-renders with the new row.
 If the server rejects it (e.g. CGPA 11), the `catch` stores the server's message in `error` and the red text appears.
 
 ### Output questions
-- Click **Edit** on a row -> `edit(s)` (line 66) copies the row into `form` (subjects array joined as `"WP-II, DBMS, OS"`), sets `editId`, button turns to "Save", "Cancel" appears.
+- Click **Edit** on a row -> `edit(s)` (line 79) copies the row into `form` (subjects array joined as `"WP-II, DBMS, OS"`), sets `editId`, button turns to "Save", "Cancel" appears.
 - Click **Delete** -> `window.confirm("Delete Aarav Mehta?")`; OK -> `DELETE /students/<id>` -> reload.
-- Pick filter "State", type `Gujarat` -> request `GET /students?state=Gujarat` (line 32, `encodeURIComponent` makes unsafe characters URL-safe) -> only Diya Shah.
+- Pick filter "State", type `Gujarat` -> request `GET /students?state=Gujarat` (line 40, `encodeURIComponent` makes unsafe characters URL-safe) -> only Diya Shah.
 - Filter "Joining year" `2023` -> Aarav, Rohan, Kabir, Meera, Ishita (from `seed.js`).
 - Click the Scholarship tab -> `GET /students/scholarship` -> students with CGPA above 9, highest first; the filter inputs disappear (line 95).
 
@@ -246,7 +246,7 @@ Files: frontend `pages/Students.jsx` (route `/students`); backend `server/studen
 - `new` students: `add.js` inserts `{ attendance: [], grades: [], ...s, createdAt }`.
 
 ### Frontend code (see Exp 2 for state/effects)
-- `Students.jsx:5`: `API` base URL from `VITE_API_URL` or `http://localhost:5000/api`.
+- `Students.jsx:8`: `API` base URL from `VITE_API_URL` or `http://localhost:5000/api`.
 - `:10-15` `api()`: wraps `fetch`, sets JSON header, `await res.json()`, throws `Error(data.error)` for non-2xx. *Why:* `fetch` does not reject on 404/400 by itself; the `!res.ok` check turns them into errors that the `catch` shows.
 - `:30-36` load + effect, `:42-53` submit (POST/PUT), `:55-63` delete with `window.confirm`, `:66-69` edit.
 - `:113` `students.map(s => <tr key={s._id}>...)`, `:117` `(s.subjects || []).join(', ')`: safe if `subjects` is missing.
@@ -277,7 +277,7 @@ The last one returns **400** `rollNo, name, branch, state, joiningYear and cgpa 
 | Add a field (e.g. `email`) to students | `EMPTY` and form input in `Students.jsx`, a column in the table, `fields()` and `valid()` in `routes.js` |
 | Change CGPA scholarship cut-off | `scholarship.js` `$gt: 9` |
 | Make password minimum 8 | `AuthForm.jsx:23` |
-| Add a new branch in dropdown | `BRANCHES` array (`Students.jsx:6`, `CrewRegistry.jsx:6`) |
+| Add a new branch in dropdown | `BRANCHES` array (`Students.jsx:10`, `CrewRegistry.jsx:6`) |
 | Change redirect after login | `LoginForm.jsx:11` |
 | Add a 5th team card | add an object to `studentTeams` in `Team.jsx` |
 | Change the timer on Crew delete confirm | `4000` in `CrewRegistry.jsx` |
