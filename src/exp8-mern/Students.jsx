@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Tag from './Tag'; // small reusable component that takes props (label, kind)
+import Tag from '../exp2-hooks/Tag'; // small reusable component that takes props (label, kind)
 
 // Exp 8: React front end for the Students REST API (list, filter, create, update, delete,
 // scholarship list). Uses the fetch API in async functions and controlled form inputs (Exp 3).
