@@ -17,7 +17,7 @@ export default function LatestNews() {
   }, []);
 
   return (
-    <section style={{ maxWidth: 1000, margin: '0 auto', padding: '0 1.5rem 3rem' }}>
+    <section id="latest-news" style={{ maxWidth: 1000, margin: '0 auto', padding: '0 1.5rem 3rem' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '1rem' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '1.8rem' }}>Latest space news</h2>
         <Link to="/news" style={{ color: '#00e5ff', fontSize: '0.9rem' }}>All news →</Link>

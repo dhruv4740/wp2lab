@@ -105,31 +105,29 @@ Plain words: when the URL is `/`, show the Home page; when it is `/students`, sh
 
 Goal of this experiment: build pages out of components using JSX.
 
-### 3.1 `src/exp1-basic/Home.jsx` (17 lines)
+### 3.1 `src/exp1-basic/Home.jsx` (12 lines)
 ```jsx
 export default function Home() {
   return (
     <div>
       <Hero />
-      <Explainer />
-      <HowItWorks />
       <LatestNews />
     </div>
   );
 }
 ```
-Plain words: the home page does no work itself. It just stacks four other components. Each is in its own file, so each file stays small and easy to understand. This is called **composition**: big page = small pieces put together.
+Plain words: the home page does no work itself. It just stacks two other components (Hero and LatestNews). Each is in its own file, so each file stays small and easy to understand. This is called **composition**: big page = small pieces put together.
 
 ### 3.2 `src/exp1-basic/Hero.jsx` (the big title banner)
 Key lines:
 ```jsx
 <h1 ...>SomaiyaSat: a satellite that decides what to send down</h1>
 <Link to="/telemetry" ...>View telemetry</Link>
-<a href="#about-project" ...>What is this?</a>
+<a href="#latest-news" ...>Latest news</a>
 ```
 - `<h1>`, `<p>`, `<div>` are normal HTML tags written in JSX.
 - `<Link to="/telemetry">` goes to another page **without reloading** the browser (it is from react-router).
-- `<a href="#about-project">` just scrolls down on the same page.
+- `<a href="#latest-news">` just scrolls down on the same page.
 - `style={{ fontSize: '2rem' }}`: the outer `{ }` means "JavaScript here", the inner `{ }` is the style object. CSS names are written camelCase (`fontSize`, not `font-size`).
 
 ### 3.3 `src/exp1-basic/Team.jsx` (best file to explain Exp 1)
@@ -367,7 +365,7 @@ const handleSubmit = (e) => {
   e.preventDefault();
   if (message.trim()) {
     setSubmitted(true);
-    setTimeout(() => { navigate('/'); }, 2000);
+    setTimeout(() => navigate('/'), 2000);
   }
 };
 ```

@@ -17,7 +17,7 @@ Folders are named after the experiment they show. Open the folder, search for th
 
 | Folder | Experiment | Files | Route |
 |---|---|---|---|
-| `exp1-basic/` | 1 Basic React | `Home`, `Hero`, `Explainer`, `HowItWorks`, `About` (+ `<Outlet>`), `Team`, `Company` | `/`, `/about/team`, `/about/company` |
+| `exp1-basic/` | 1 Basic React | `Home`, `Hero`, `About` (+ `<Outlet>`), `Team`, `Company` | `/`, `/about/team`, `/about/company` |
 | `exp2-hooks/` | 2 Hooks, props | `Tag` (+ `Tag.module.css`), `Students` | `/students` |
 | `exp3-forms/` | 3 Forms | `AuthForm`, `AuthModal`, `LoginForm`, `RegisterForm`, `Contact`, `AuthContext` | `/login`, `/register`, `/experiments/contact` |
 | `exp4-api/` | 4 API | `Dispatches` (axios), `LatestNews` (fetch) | `/news`, home page |

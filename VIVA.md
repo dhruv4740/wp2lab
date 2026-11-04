@@ -17,16 +17,16 @@ npm run dev          # site, port 3000
 ---
 
 # EXP 1: Basic React pages (JSX, components)
-Files: `exp1-basic/Home.jsx`, `components/Hero.jsx`, `exp1-basic/Team.jsx`. Routes: `/` and `/about/team`.
+Files: `exp1-basic/Home.jsx`, `exp1-basic/Hero.jsx`, `exp1-basic/Team.jsx`. Routes: `/` and `/about/team`.
 
 **What is JSX?** HTML-like syntax inside JavaScript. The build tool (Vite/Babel) turns `<h1>Hi</h1>` into `React.createElement('h1', null, 'Hi')`. `{ }` embeds JavaScript expressions.
 
-**Where is the home page built, and how?** `Home.jsx:8-17`. It is only composition: `<Hero />`, `<Explainer />`, `<HowItWorks />`, `<LatestNews />` stacked in a div. Each is its own component file. *Why:* small reusable parts, each file does one job.
+**Where is the home page built, and how?** `Home.jsx:5-12`. It is only composition: `<Hero />` and `<LatestNews />` stacked in a div. Each is its own component file. *Why:* small reusable parts, each file does one job.
 
 **Hero.jsx**
-- Line 5: a function component (a function that returns JSX, name starts with a capital letter).
-- Line 19: `<Link to="/telemetry">` is client-side routing: changes the URL and page without a reload.
-- Line 22: `<a href="#about-project">` is a plain anchor that scrolls inside the page. *Difference:* Link = another route; `a` = same page.
+- Line 7: a function component (a function that returns JSX, name starts with a capital letter).
+- Line 22: `<Link to="/telemetry">` is client-side routing: changes the URL and page without a reload.
+- Line 25: `<a href="#latest-news">` is a plain anchor that scrolls inside the page. *Difference:* Link = another route; `a` = same page.
 - `style={{ ... }}`: outer braces = JS expression, inner braces = style object. CSS properties are camelCase (`fontSize`).
 
 **Team.jsx** (best file to explain Exp 1 in detail)
@@ -147,11 +147,11 @@ Files: `exp3-forms/AuthForm.jsx`, `exp3-forms/LoginForm.jsx`, `exp3-forms/Regist
 - `About.jsx:44-49`: `NavLink` and `linkStyle = ({ isActive }) => ...` highlights the active tab (line 9).
 - `Navbar.jsx:46`: NavLink with `className={({isActive}) => ...}`.
 - `App.jsx:65`: wildcard route `path="*"` redirects unknown URLs home.
-- **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:13-22`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:57`).
+- **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:14-22`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:57`).
 - Link vs useNavigate: `Link` = user clicks; `navigate()` = code decides (after a login, after a timer).
 
 ### Contact form
-Controlled `<textarea value={message}>` (line ~80), `if (message.trim())` ignores empty/space-only messages, `submitted` state switches the form for a success message (`!submitted ? <form> : <success>`, line 72).
+Controlled `<textarea value={message}>` (line 31-ish, the `<textarea>`), `if (message.trim())` ignores empty/space-only messages, `submitted` state switches the form for a success message (`!submitted ? <form> : <success>`, line 72).
 
 **Q: Controlled vs uncontrolled?** Controlled: value in state, changed by `onChange`. Uncontrolled: DOM keeps the value, read with a `ref`. We use controlled so validation and resets are easy.
 **Q: Why store errors as an object?** One entry per field, so each field shows only its own message, and `Object.keys(err).length` tells whether anything failed.

@@ -22,8 +22,8 @@ export default function Hero() {
           <Link to="/telemetry" className="btn-primary" style={{ padding: '0.8rem 1.6rem', borderRadius: 8, background: 'var(--accent-cyan)', color: '#04060a', fontWeight: 600, textDecoration: 'none' }}>
             View telemetry
           </Link>
-          <a href="#about-project" style={{ padding: '0.8rem 1.6rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.25)', color: 'var(--text-primary)', textDecoration: 'none' }}>
-            What is this?
+          <a href="#latest-news" style={{ padding: '0.8rem 1.6rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.25)', color: 'var(--text-primary)', textDecoration: 'none' }}>
+            Latest news
           </a>
         </div>
       </div>
