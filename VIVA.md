@@ -147,7 +147,8 @@ Files: `exp3-forms/AuthForm.jsx`, `exp3-forms/LoginForm.jsx`, `exp3-forms/Regist
 - `About.jsx:44-49`: `NavLink` and `linkStyle = ({ isActive }) => ...` highlights the active tab (line 9).
 - `Navbar.jsx:46`: NavLink with `className={({isActive}) => ...}`.
 - `App.jsx:65`: wildcard route `path="*"` redirects unknown URLs home.
-- **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:14-22`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:57`).
+- **useRef / uncontrolled input:** `Contact.jsx:12` creates `subjectRef = useRef(null)`; line 31 attaches it with `<input ref={subjectRef} />`; line 18 reads `subjectRef.current.value` on submit. React does not store the value in state (uncontrolled), unlike the textarea next to it (controlled: `value` + `onChange`).
+- **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:15-23`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:53`).
 - Link vs useNavigate: `Link` = user clicks; `navigate()` = code decides (after a login, after a timer).
 
 ### Contact form

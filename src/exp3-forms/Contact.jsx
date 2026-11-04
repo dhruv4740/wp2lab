@@ -1,6 +1,6 @@
 // Exp 3 + routing: a contact form with a controlled textarea. After submit it redirects to the
 // home page from code, using the navigate function from React Router (useNavigate).
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const box = { padding: '0.8rem 1rem', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)', background: '#04060a', color: '#fff' };
@@ -9,11 +9,13 @@ export default function Contact() {
   const navigate = useNavigate();                  // function that changes the page from code
   const [message, setMessage] = useState('');      // text in the textarea (controlled input)
   const [submitted, setSubmitted] = useState(false); // false = show the form, true = show thank-you
+  const subjectRef = useRef(null);                 // uncontrolled input: React does not track it, we read it on submit
 
   // Ignore empty messages; otherwise show the thank-you view and go Home after 2 seconds.
   const handleSubmit = (e) => {
     e.preventDefault();                            // stop the browser reloading the page
     if (message.trim()) {
+      console.log('Subject (read from the ref):', subjectRef.current.value);
       setSubmitted(true);
       setTimeout(() => navigate('/'), 2000);       // programmatic navigation
     }
@@ -26,6 +28,7 @@ export default function Contact() {
       {/* Conditional rendering: form until submitted, then a thank-you message */}
       {!submitted ? (
         <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1rem' }}>
+          <input ref={subjectRef} placeholder="Subject (uncontrolled, useRef)" style={box} />
           <textarea
             rows="5"
             value={message}
