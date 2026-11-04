@@ -17,7 +17,7 @@ npm run dev          # site, port 3000
 ---
 
 # EXP 1: Basic React pages (JSX, components)
-Files: `pages/Home.jsx`, `components/Hero.jsx`, `pages/Team.jsx`. Routes: `/` and `/about/team`.
+Files: `exp1-basic/Home.jsx`, `components/Hero.jsx`, `exp1-basic/Team.jsx`. Routes: `/` and `/about/team`.
 
 **What is JSX?** HTML-like syntax inside JavaScript. The build tool (Vite/Babel) turns `<h1>Hi</h1>` into `React.createElement('h1', null, 'Hi')`. `{ }` embeds JavaScript expressions.
 
@@ -36,7 +36,7 @@ Files: `pages/Home.jsx`, `components/Hero.jsx`, `pages/Team.jsx`. Routes: `/` an
 - Line 73: `{ icon: Icon, ... }` destructures the prop and renames it to `Icon`. *Why:* JSX treats lowercase tags as HTML, so a component must start with a capital letter: `<Icon size={20} />`.
 - Lines 58 and 85: `children` prop: whatever is written between `<PersonCard>...</PersonCard>` is rendered at `{children}`.
 - Line 2: icons come from `lucide-react`, which are React components.
-- Route: `App.jsx:62` is `<Route path="team" element={<Team />} />`, nested under `/about`, so the URL is `/about/team`.
+- Route: `App.jsx:45` is `<Route path="team" element={<Team />} />`, nested under `/about`, so the URL is `/about/team`.
 
 **Output to expect:** `/about/team` shows two faculty cards (Dr. Umesh Shinde, Dr. Shailesh Nikam) and three subsystem cards. Adding one object to `studentTeams` gives a fourth card with no other code change.
 
@@ -48,26 +48,26 @@ Files: `pages/Home.jsx`, `components/Hero.jsx`, `pages/Team.jsx`. Routes: `/` an
 ---
 
 # EXP 2: Components, props, hooks, conditional rendering, events
-Files: `components/Tag.jsx`, `pages/Students.jsx`, `pages/Experiments.jsx` (also `CrewRegistry.jsx`).
+Files: `exp2-hooks/Tag.jsx`, `exp2-hooks/Students.jsx`, `exp7-mongodb/CrewRegistry.jsx` (hooks with a cleanup).
 
 ### Props: `Tag.jsx`
 ```jsx
 export default function Tag({ label, kind }) {
-  return <span className={kind === 'exp' ? `${styles.tag} ${styles.exp}` : styles.tag}>{label}</span>;
+  return <span className={kind === 'highlight' ? `${styles.tag} ${styles.highlight}` : styles.tag}>{label}</span>;
 }
 ```
-- Used at `Experiments.jsx:32` as `<Tag label="Exp 3" kind="exp" />` (blue pill) and at line 47 as `<Tag label={p.name} />` (grey pill).
+- Used in `Students.jsx` (table row, lines 137-138): `<Tag label={s.branch} />` (grey pill) and `<Tag label={s.cgpa} kind={s.cgpa > 9 ? 'highlight' : ''} />` (blue pill when CGPA is above 9).
 - Output: same component, two looks, depending on the `kind` prop. Props are read-only.
 - `Tag.module.css` is a CSS Module: `.tag` and `.exp` become unique generated class names, so they can't clash with other files.
 
-### useState: `Students.jsx:29-35`
+### useState: `Students.jsx:30-36`
 `students` (list), `form` (all input values in one object), `editId` (null = adding, id = editing), `view` ('all' | 'scholarship'), `filter` ({key, value}), `loading`, `error`.
-*Why one `form` object?* Seven inputs, one state, one handler: `set = (k) => (e) => setForm({ ...form, [k]: e.target.value })` (line 51). `[k]` is a computed key: copy all fields, overwrite just one.
+*Why one `form` object?* Seven inputs, one state, one handler: `set = (k) => (e) => setForm({ ...form, [k]: e.target.value })` (line 52). `[k]` is a computed key: copy all fields, overwrite just one.
 
 ### useEffect: where is it?
-- `Students.jsx:48`: `useEffect(() => { load(); }, [load]);` runs after the first render and again whenever `load` changes.
-- `load` (lines 38-43) is wrapped in `useCallback(..., [view, filter])`, so it is re-created only when `view` or `filter` changes. Net effect: changing the tab or typing in the filter box re-fetches the list. *Why useCallback:* without it `load` would be a new function every render and the effect would loop forever.
-- `Experiments.jsx:15-21`: effect with `[]` = run once on mount; it reads each source file and finds the line number of each pointer, then `setLines(prev => ({...prev, [i]: n}))` (functional update, because several async results write to the same state).
+- `Students.jsx:49`: `useEffect(() => { load(); }, [load]);` runs after the first render and again whenever `load` changes.
+- `load` (lines 39-44) is wrapped in `useCallback(..., [view, filter])`, so it is re-created only when `view` or `filter` changes. Net effect: changing the tab or typing in the filter box re-fetches the list. *Why useCallback:* without it `load` would be a new function every render and the effect would loop forever.
+- `exp4-api/LatestNews.jsx`: effect with `[]` = run once on mount (the removed Experiments page did this too: it reads each source file and finds the line number of each pointer, then `setLines(prev => ({...prev, [i]: n}))` (functional update, because several async results write to the same state).
 - `CrewRegistry.jsx:37-42`: effect with a **cleanup**: sets a 4 s timeout and returns `() => clearTimeout(t)`.
 - `AuthModal.jsx:9-14`: adds a `keydown` listener for Escape, cleanup removes it.
 - Dependency array rules: none = every render, `[]` = once, `[a]` = when `a` changes. Cleanup runs before the next effect and on unmount.
@@ -75,29 +75,29 @@ export default function Tag({ label, kind }) {
 ### Conditional rendering: all the forms it takes here
 | Where | Code | Meaning |
 |---|---|---|
-| `Students.jsx:101` | `{editId ? 'Save' : 'Register'}` | ternary picks the button text |
-| `:102` | `{editId && <button>Cancel</button>}` | `&&`: show only while editing |
-| `:107` | `{error && <p>...</p>}` | show error text only if set |
-| `:113` | `{view === 'all' && (<>filter inputs</>)}` | filter box is hidden on the Scholarship tab |
-| `:127` | `loading ? <p>Loading…</p> : <table>` | spinner vs table |
-| `:144` | `students.length === 0 && <tr>No students found.</tr>` | empty state |
-| `:111-112` | `style={view === 'all' ? btn : box}` | highlights the active tab |
+| `Students.jsx:102` | `{editId ? 'Save' : 'Register'}` | ternary picks the button text |
+| `:103` | `{editId && <button>Cancel</button>}` | `&&`: show only while editing |
+| `:108` | `{error && <p>...</p>}` | show error text only if set |
+| `:114` | `{view === 'all' && (<>filter inputs</>)}` | filter box is hidden on the Scholarship tab |
+| `:128` | `loading ? <p>Loading…</p> : <table>` | spinner vs table |
+| `:146` | `students.length === 0 && <tr>No students found.</tr>` | empty state |
+| `:112-113` | `style={view === 'all' ? btn : box}` | highlights the active tab |
 
 ### Events
-`onChange` (every input, lines 93-99), `onSubmit` (form, line 92), `onClick` (buttons, 111-112, 139-140). `e.preventDefault()` (line 55) stops the browser's default form submit and page reload. Handlers are passed as functions, not called: `onClick={() => edit(s)}`; `onClick={edit(s)}` would run during render.
+`onChange` (every input, lines 94-100), `onSubmit` (form, line 93), `onClick` (buttons, 112-113, 141-142). `e.preventDefault()` (line 56) stops the browser's default form submit and page reload. Handlers are passed as functions, not called: `onClick={() => edit(s)}`; `onClick={edit(s)}` would run during render.
 
 ### What happens when I click "Register"? (say it step by step)
-1. `submit` (line 54) runs, `preventDefault`, clears the error.
-2. `editId` is null so it sends `POST /students` (line 58) with `JSON.stringify(form)`.
-3. `api()` (lines 15-20) calls `fetch`, parses JSON, throws if the status is not 2xx.
+1. `submit` (line 55) runs, `preventDefault`, clears the error.
+2. `editId` is null so it sends `POST /students` (line 59) with `JSON.stringify(form)`.
+3. `api()` (lines 16-21) calls `fetch`, parses JSON, throws if the status is not 2xx.
 4. Server `routes.js:49`: validates, converts types (`fields`), inserts in MongoDB, replies 201.
 5. Back in React: `setForm(EMPTY)`, `setEditId(null)`, `load()` re-fetches, state changes, the table re-renders with the new row.
 If the server rejects it (e.g. CGPA 11), the `catch` stores the server's message in `error` and the red text appears.
 
 ### Output questions
-- Click **Edit** on a row -> `edit(s)` (line 79) copies the row into `form` (subjects array joined as `"WP-II, DBMS, OS"`), sets `editId`, button turns to "Save", "Cancel" appears.
+- Click **Edit** on a row -> `edit(s)` (line 80) copies the row into `form` (subjects array joined as `"WP-II, DBMS, OS"`), sets `editId`, button turns to "Save", "Cancel" appears.
 - Click **Delete** -> `window.confirm("Delete Aarav Mehta?")`; OK -> `DELETE /students/<id>` -> reload.
-- Pick filter "State", type `Gujarat` -> request `GET /students?state=Gujarat` (line 40, `encodeURIComponent` makes unsafe characters URL-safe) -> only Diya Shah.
+- Pick filter "State", type `Gujarat` -> request `GET /students?state=Gujarat` (line 41, `encodeURIComponent` makes unsafe characters URL-safe) -> only Diya Shah.
 - Filter "Joining year" `2023` -> Aarav, Rohan, Kabir, Meera, Ishita (from `seed.js`).
 - Click the Scholarship tab -> `GET /students/scholarship` -> students with CGPA above 9, highest first; the filter inputs disappear (line 95).
 
@@ -109,10 +109,10 @@ If the server rejects it (e.g. CGPA 11), the `catch` stores the server's message
 ---
 
 # EXP 3: Forms and validation
-Files: `components/AuthForm.jsx`, `pages/LoginForm.jsx`, `pages/RegisterForm.jsx`, `components/AuthModal.jsx`, `pages/Contact.jsx`, routes in `App.jsx`.
+Files: `exp3-forms/AuthForm.jsx`, `exp3-forms/LoginForm.jsx`, `exp3-forms/RegisterForm.jsx`, `exp3-forms/AuthModal.jsx`, `exp3-forms/Contact.jsx`, routes in `App.jsx`.
 
 ### Where do I see login/register?
-- Navbar "Sign in" button (`Navbar.jsx:59`) opens `AuthModal` (popup). Pages `/login` and `/register` also exist (`App.jsx:58-59`). Both use the **same** `AuthForm` with a `mode` prop: `"login"` or `"register"`.
+- Navbar "Sign in" button (`Navbar.jsx:57`) opens `AuthModal` (popup). Pages `/login` and `/register` also exist (`App.jsx:51-52`). Both use the **same** `AuthForm` with a `mode` prop: `"login"` or `"register"`.
 
 ### AuthForm line by line
 - Line 12: one state object `v` for all fields (name, email, password, role, agree). Line 13: `errors` object, one message per field.
@@ -143,10 +143,10 @@ Files: `components/AuthForm.jsx`, `pages/LoginForm.jsx`, `pages/RegisterForm.jsx
 - Lines 9-14: Escape key effect (with cleanup). Line 16: `if (!isOpen) return null` = render nothing when closed.
 
 ### Routing and navigation
-- `App.jsx:60-65`: nested routes. `/about` renders `About`, whose `<Outlet />` (`About.jsx:55`) shows the child (Team or Company). `index` route redirects `/about` to `team` with `<Navigate>`.
+- `App.jsx:43-46`: nested routes. `/about` renders `About`, whose `<Outlet />` (`About.jsx:55`) shows the child (Team or Company). `index` route redirects `/about` to `team` with `<Navigate>`.
 - `About.jsx:44-49`: `NavLink` and `linkStyle = ({ isActive }) => ...` highlights the active tab (line 9).
-- `Navbar.jsx:47`: NavLink with `className={({isActive}) => ...}`.
-- `App.jsx:66`: wildcard route `path="*"` redirects unknown URLs home.
+- `Navbar.jsx:46`: NavLink with `className={({isActive}) => ...}`.
+- `App.jsx:65`: wildcard route `path="*"` redirects unknown URLs home.
 - **useNavigate (programmatic navigation):** `LoginForm.jsx:7,11`: `navigate('/telemetry')` after login. `Contact.jsx:13-22`: submit shows a thank-you view, then `setTimeout(() => navigate('/'), 2000)`. Route `/experiments/contact` (`App.jsx:57`).
 - Link vs useNavigate: `Link` = user clicks; `navigate()` = code decides (after a login, after a timer).
 
@@ -160,7 +160,7 @@ Controlled `<textarea value={message}>` (line ~80), `if (message.trim())` ignore
 ---
 
 # EXP 7: MongoDB CRUD
-Files: `server/lab/exp7_crud.js` (the experiment script), `server/mongo/db.js`, `server/mongo/crew.js`, `server/mongo/api.js`; frontend: `pages/CrewRegistry.jsx` (route `/crew`).
+Files: `server/exp7-mongodb/exp7_crud.js` (the experiment script), `server/db.js`, `server/exp6-express/crew.js`, `server/exp6-express/api.js`; frontend: `exp7-mongodb/CrewRegistry.jsx` (route `/crew`).
 
 **Run the experiment:** `npm run exp7` (MongoDB must be running). It prints to the terminal, it has no web page. The same driver and operations power `/crew`.
 
@@ -215,7 +215,7 @@ Remaining documents: 1
 ---
 
 # EXP 8: React + Node REST API (Student Management)
-Files: frontend `pages/Students.jsx` (route `/students`); backend `server/students/routes.js` (+ `find.js`, `add.js`, `update.js`, `delete.js`, `attendance.js`, `grades.js`, `scholarship.js`, `seed.js`).
+Files: frontend `exp2-hooks/Students.jsx` (route `/students`); backend `server/exp8-students/routes.js` (+ `find.js`, `add.js`, `update.js`, `delete.js`, `attendance.js`, `grades.js`, `scholarship.js`, `seed.js`).
 
 ### Architecture in one line
 `Students.jsx` --fetch--> Express (`api.js` mounts `studentRouter` at `/api/students`, `api.js:45`) --> `routes.js` --> function in `find/add/update/delete.js` --> MongoDB `students` collection. Response travels back as JSON.
@@ -246,7 +246,7 @@ Files: frontend `pages/Students.jsx` (route `/students`); backend `server/studen
 - `new` students: `add.js` inserts `{ attendance: [], grades: [], ...s, createdAt }`.
 
 ### Frontend code (see Exp 2 for state/effects)
-- `Students.jsx:8`: `API` base URL from `VITE_API_URL` or `http://localhost:5000/api`.
+- `Students.jsx:9`: `API` base URL from `VITE_API_URL` or `http://localhost:5000/api`.
 - `:10-15` `api()`: wraps `fetch`, sets JSON header, `await res.json()`, throws `Error(data.error)` for non-2xx. *Why:* `fetch` does not reject on 404/400 by itself; the `!res.ok` check turns them into errors that the `catch` shows.
 - `:30-36` load + effect, `:42-53` submit (POST/PUT), `:55-63` delete with `window.confirm`, `:66-69` edit.
 - `:113` `students.map(s => <tr key={s._id}>...)`, `:117` `(s.subjects || []).join(', ')`: safe if `subjects` is missing.
@@ -277,7 +277,7 @@ The last one returns **400** `rollNo, name, branch, state, joiningYear and cgpa 
 | Add a field (e.g. `email`) to students | `EMPTY` and form input in `Students.jsx`, a column in the table, `fields()` and `valid()` in `routes.js` |
 | Change CGPA scholarship cut-off | `scholarship.js` `$gt: 9` |
 | Make password minimum 8 | `AuthForm.jsx:23` |
-| Add a new branch in dropdown | `BRANCHES` array (`Students.jsx:10`, `CrewRegistry.jsx:6`) |
+| Add a new branch in dropdown | `BRANCHES` array (`Students.jsx:11`, `CrewRegistry.jsx:6`) |
 | Change redirect after login | `LoginForm.jsx:11` |
 | Add a 5th team card | add an object to `studentTeams` in `Team.jsx` |
 | Change the timer on Crew delete confirm | `4000` in `CrewRegistry.jsx` |
@@ -293,6 +293,6 @@ The last one returns **400** `rollNo, name, branch, state, joiningYear and cgpa 
 
 # Short revision for Exp 4, 5, 6 and the PS (second priority)
 - **Exp 4** `Dispatches.jsx`: `axios.get` in an async function with `try/catch/finally`; `useEffect(..., [])` loads once; `.filter()` by search text and category (line 46); conditional rendering for loading/error/list. Axios vs fetch: axios parses JSON automatically (`response.data`) and rejects on non-2xx.
-- **Exp 5** `server/groundStationServer.js`: `http.createServer` (137), `new URL` (138), `fs.readFile` (154, 196), `fs.appendFile` (42), `JSON.parse` (54), 404 (211), 400 for bad JSON (56), EventEmitter (64-79). Test with `npm run client`.
-- **Exp 6** `server/mongo/api.js` + `students/routes.js`: `express.json()` and `cors()` middleware (11-12), `Router()` modular routers, mounted at 44-45, 400 validation, 404 not found, error-handling middleware with 4 arguments (82).
+- **Exp 5** `server/exp5-node/groundStationServer.js`: `http.createServer` (137), `new URL` (138), `fs.readFile` (154, 196), `fs.appendFile` (42), `JSON.parse` (54), 404 (211), 400 for bad JSON (56), EventEmitter (64-79). Test with `npm run client`.
+- **Exp 6** `server/exp6-express/api.js` + `exp8-students/routes.js`: `express.json()` and `cors()` middleware (11-12), `Router()` modular routers, mounted at 44-45, 400 validation, 404 not found, error-handling middleware with 4 arguments (82).
 - **PS: Pass Monitor** (`/monitor`): `fetchPassData` returns a Promise (700 ms `setTimeout`); `loadPass` uses async/await with try/catch/finally; one `pass` state object; `classify` gives Nominal/Degraded/Critical (Critical if battery<20, snr<3 or temp>60; Degraded if battery<50, snr<8 or temp>45); `PassCard` is reused for every station (props + `PassCard.module.css`); `LinkForm` validates SNR -20..40, battery 0..100, temp -60..100.

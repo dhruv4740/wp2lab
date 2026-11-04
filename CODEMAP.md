@@ -1,79 +1,48 @@
 # SomaiyaSat code map
 
-Open the path, search for the symbol. Line numbers are approximate.
+Folders are named after the experiment they show. Open the folder, search for the symbol.
 
 ## Run it
 
 | What | Command | Port |
 |---|---|---|
 | MongoDB | `start-mongo.bat` | 27017 |
-| Crew REST API | `npm run api` | 5000 |
-| Ground station server (`server.js` equivalent) | `npm run server` | 8080 |
+| Express API (crew, news, students) | `npm run api` | 5000 |
+| Ground station Node server (Exp 5) | `npm run server` | 8080 |
 | React site | `npm run dev` | 3000 |
 | Production build | `npm run build` | |
+| Seed students | `npm run seed` | |
 
-Compass: `mongodb://localhost:27017` → `somaiyasat` → `crew`.
+## Front end (`src/`)
 
-## Live vs simulated
+| Folder | Experiment | Files | Route |
+|---|---|---|---|
+| `exp1-basic/` | 1 Basic React | `Home`, `Hero`, `Explainer`, `HowItWorks`, `About` (+ `<Outlet>`), `Team`, `Company` | `/`, `/about/team`, `/about/company` |
+| `exp2-hooks/` | 2 Hooks, props | `Tag` (+ `Tag.module.css`), `Students` | `/students` |
+| `exp3-forms/` | 3 Forms | `AuthForm`, `AuthModal`, `LoginForm`, `RegisterForm`, `Contact`, `AuthContext` | `/login`, `/register`, `/experiments/contact` |
+| `exp4-api/` | 4 API | `Dispatches` (axios), `LatestNews` (fetch) | `/news`, home page |
+| `exp5-node/` | 5 Node (web console for the Node server) | `GroundSupport`, `GroundUplink` | `/gateway`, `/uplink` |
+| `exp7-mongodb/` | 7 MongoDB (website side) | `CrewRegistry` | `/crew` |
+| `shared/` | | `Navbar`, `ErrorBoundary` | |
+| `mission-site/` | not an experiment | telemetry dashboard and its widgets | `/telemetry` |
+| `ps-passmonitor/` | problem statement | `PassMonitor` and its pieces | `/monitor` |
 
-| Thing | Status | Where |
+`App.jsx` holds the routes, `main.jsx` mounts the app.
+
+## Back end (`server/`)
+
+| Folder / file | Experiment | What it does |
 |---|---|---|
-| Crew add/edit/delete | LIVE (MongoDB) | `src/pages/CrewRegistry.jsx`, `server/mongo/` |
-| Ground server uptime/health | LIVE (Node `os`, `process`) | `server/groundStationServer.js:171` |
-| Battery, telemetry numbers | SIMULATED (`Math.random()` in the server) | `server/groundStationServer.js:163` |
-| Login / register | `localStorage` only, no server | `src/context/AuthContext.jsx:5` |
-
-## Routes → files (`src/App.jsx`)
-
-| URL | File | React concepts shown |
-|---|---|---|
-| `/` | `pages/Home.jsx` → `components/Hero.jsx`, `components/HowItWorks.jsx`, `components/LatestNews.jsx` (real news headlines, `useEffect` + `fetch`) | `useState`, `useEffect` + `fetch` + `setInterval` (custom hook `usePoll`) |
-| `/crew` | `pages/CrewRegistry.jsx` | controlled form, CRUD with `fetch`, two-step delete |
-| `/telemetry` | `pages/TelemetryHub.jsx` (5 tabs via `useState`) + `PassLogTable`, `Overlay` (shared popup shell), `RuleConfigOverlay`, `DraggableCards`, `DraggableQueue`, `PassDetailOverlay`, `SSTVCarousel`, `TelemetryStreamEngine` | inline edit, overlays, drag and drop, lists |
-| `/uplink` | `pages/GroundUplink.jsx` | props, state |
-| `/gateway` | `pages/GroundSupport.jsx` (calls `GET /api/health` and `POST /api/telecommand` on `server/groundStationServer.js`; run `npm run server` first) | Exp 5 end to end |
-| `/news` | `pages/Dispatches.jsx` (navbar "News"; `/dispatches` redirects here) | `fetch` of `/api/news` |
-| `/experiments` | `pages/Experiments.jsx` + `labMap.js` | Exp 1-8 index and a pointer -> file -> line table (single source: `src/labMap.js`) |
-| `/students` | `pages/Students.jsx` + `server/students/*` | Exp 8 |
-| `/login`, `/register` | `pages/LoginForm.jsx`, `pages/RegisterForm.jsx` → shared `components/AuthForm.jsx` (also used by `AuthModal.jsx`) | validation, Context |
-| `/about/team`, `/about/company` | `pages/About.jsx` (layout with `<Outlet>`), `Team.jsx`, `Company.jsx` | nested routes |
-| `/experiments/contact` | `pages/Contact.jsx` | `useNavigate` |
-
-Every page ends with a collapsed **Code behind this page** panel (`components/CodePanel.jsx`). It reads the real source files and lists where `useState`, `useEffect`, `fetch`, routes and MongoDB calls are, with line numbers and a snippet. To change which files a page shows, edit the `FILES` map at the top of that file.
-
-Shared: `components/Navbar.jsx`, `components/AuthModal.jsx`, `components/LaunchOverlay.jsx` (listens for the `trigger-pslv-launch` event), `components/ErrorBoundary.jsx` (wraps the app in `src/main.jsx`).
-
-## Backend
-
-| File | What it does |
-|---|---|
-| `server/mongo/db.js` | `MongoClient` connection, `crew()` returns the collection |
-| `server/mongo/crew.js` | `addMember`, `findMembers`, `updateMember`, `deleteMember` (native driver: `insertOne`, `find`, `findOneAndUpdate`, `deleteOne`) |
-| `server/mongo/api.js` | `express.Router()` mounted at `/api/crew` (GET, POST, PUT/:id, DELETE/:id), validation, status codes 201/400/404/500; `GET /api/news` proxies the Spaceflight News API |
-| `server/groundStationServer.js` | Plain `http` server: `/api/telemetry:163`, `/api/health:171`, `/api/telecommand:174`, `/api/events:192`, `/api/logs:195`, `/api/events/trigger:204` |
-| `server/groundStationClient.js` | Node `http` client that calls the server above |
+| `exp5-node/groundStationServer.js`, `groundStationClient.js` | 5 | plain `http` server (port 8080) and a Node client |
+| `exp6-express/api.js`, `crew.js` | 6 | Express app: `cors`, `express.json`, mounted routers, 400/404/201/500; crew CRUD; `/api/news` |
+| `db.js` | 7, 8 | MongoDB connection shared by crew and students |
+| `exp7-mongodb/exp7_crud.js` | 7 | the MongoDB CRUD script (`npm run exp7`) |
+| `exp8-students/` | 8 | `routes.js` (REST), one small file per job (`add`, `find`, `update`, `delete`, `attendance`, `grades`, `scholarship`), `seed.js`, `modules_demo.js` |
 
 ## Config
 
-`package.json` scripts, `vite.config.js` (port 3000), `dev.js` / `build.js` (Vite launchers, `npx vite` fails to load config on this machine), `.gitignore`.
+`package.json` scripts, `vite.config.js`, `dev.js` / `build.js` (Vite launchers; `npx vite` fails on this machine).
 
-## WP2 syllabus (216U04L501) coverage
+## Removed
 
-Source: `TY BTech IT-Syllabus-SVU-2023.pdf` (course outcomes CO1-CO4) and the WP-II experiment handouts in Downloads (Expt 1 React components and props, Expt 2 useState/useEffect, Expt 6 Express routing, Node.js in-lab).
-
-| Syllabus unit | Where it is on the site |
-|---|---|
-| 1. React basics: JSX, components, props, state, events | `Hero.jsx`, `HowItWorks.jsx` (props on `Card`, `useState`), `CrewRegistry.jsx` (controlled form, events) |
-| 1.4 Lifecycle / hooks (Expt 2) | `usePoll` in `HowItWorks.jsx` (`useEffect` with cleanup), `CrewRegistry.jsx:29` |
-| 2.1 React Router | `App.jsx` routes, nested routes in `About.jsx`, `NavLink` in `Navbar.jsx` |
-| 2.2 Global state with Context | `context/AuthContext.jsx` |
-| 2.3 Forms and validation | `LoginForm.jsx`, `RegisterForm.jsx`, `Contact.jsx`, `CrewRegistry.jsx` |
-| 4.1-4.2 MongoDB driver and CRUD | `server/mongo/db.js`, `crew.js` |
-| 4.3 MySQL with Node.js | **not on the site.** The first MySQL lab code you pasted at the start was replaced by MongoDB. |
-| 5.1-5.4 REST, React + Node | `server/mongo/api.js` (Express Router, Expt 6), `CrewRegistry.jsx` |
-| 5.5 Full-stack project | the whole site: React, Express, MongoDB |
-
-## Removed in simplification
-
-`NewsFeed.jsx`, `UplinkCommand.jsx`, `NodeServerConsole.jsx` (duplicates of News, Uplink and the Node server). Old URLs `/experiments/news|uplink|node-console` redirect to `/news`, `/uplink`, `/gateway`. Exp 5 is shown in `server/groundStationServer.js`.
-- `components/WireframeStudio.jsx` (unused). `PassDetailOverlay` and `RuleConfigOverlay` now take `{pass|aiRules, onClose}` and are mounted only while open.
+The `/experiments` index page, `labMap.js`, the "Code behind this page" panel (`CodePanel`) and the launch overlay. They were helpers, not part of any experiment.

@@ -27,14 +27,14 @@ Folders you need:
 
 | Folder / file | What is inside |
 |---|---|
-| `src/pages/` | one file per page (Home, Students, Crew, Contact ...) |
-| `src/components/` | smaller pieces reused inside pages (Tag, AuthForm, Hero ...) |
-| `src/context/AuthContext.jsx` | remembers who is logged in |
+| `src/exp1-basic/` ... `src/exp4-api/`, `src/exp7-mongodb/` | the pages and components of each experiment, one folder per experiment |
+| `src/shared/`, `src/mission-site/`, `src/ps-passmonitor/` | Navbar and error boundary; the telemetry pages; the problem-statement pass monitor |
+| `src/exp3-forms/AuthContext.jsx` | remembers who is logged in |
 | `src/App.jsx` | the list of URLs and which page each one shows |
 | `src/main.jsx` | the very first file that starts React |
-| `server/mongo/` | Express API for crew + the MongoDB connection |
-| `server/students/` | Express API for students (one small file per job) |
-| `server/lab/exp7_crud.js` | the Experiment 7 script (runs in the terminal, no web page) |
+| `server/exp6-express/` + `server/db.js` | Express API for crew and news + the shared MongoDB connection |
+| `server/exp8-students/` | Express API for students (one small file per job) |
+| `server/exp7-mongodb/exp7_crud.js` | the Experiment 7 script (runs in the terminal, no web page) |
 
 **Which experiment is where:**
 
@@ -44,7 +44,7 @@ Folders you need:
 | 2 | props, hooks, conditions, events | `Tag.jsx`, `Students.jsx` |
 | 3 | forms and validation | `AuthForm.jsx`, `Contact.jsx` |
 | 7 | MongoDB CRUD | `exp7_crud.js`, `db.js`, `crew.js` |
-| 8 | React + Node REST API | `Students.jsx`, `server/students/routes.js` |
+| 8 | React + Node REST API | `Students.jsx`, `server/exp8-students/routes.js` |
 
 ---
 
@@ -91,7 +91,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 ```
 Plain words: `index.html` has an empty box `<div id="root">`. This code says "put the `App` component inside that box". `ErrorBoundary` is a safety net: if a component crashes, it shows "Something went wrong" instead of a blank page.
 
-**`src/App.jsx`**: the map of the site (lines 42-67).
+**`src/App.jsx`**: the map of the site (lines 40-66).
 ```jsx
 <Route path="/"         element={<Home />} />
 <Route path="/students" element={<Students />} />
@@ -105,7 +105,7 @@ Plain words: when the URL is `/`, show the Home page; when it is `/students`, sh
 
 Goal of this experiment: build pages out of components using JSX.
 
-### 3.1 `src/pages/Home.jsx` (17 lines)
+### 3.1 `src/exp1-basic/Home.jsx` (17 lines)
 ```jsx
 export default function Home() {
   return (
@@ -120,7 +120,7 @@ export default function Home() {
 ```
 Plain words: the home page does no work itself. It just stacks four other components. Each is in its own file, so each file stays small and easy to understand. This is called **composition**: big page = small pieces put together.
 
-### 3.2 `src/components/Hero.jsx` (the big title banner)
+### 3.2 `src/exp1-basic/Hero.jsx` (the big title banner)
 Key lines:
 ```jsx
 <h1 ...>SomaiyaSat: a satellite that decides what to send down</h1>
@@ -132,7 +132,7 @@ Key lines:
 - `<a href="#about-project">` just scrolls down on the same page.
 - `style={{ fontSize: '2rem' }}`: the outer `{ }` means "JavaScript here", the inner `{ }` is the style object. CSS names are written camelCase (`fontSize`, not `font-size`).
 
-### 3.3 `src/pages/Team.jsx` (best file to explain Exp 1)
+### 3.3 `src/exp1-basic/Team.jsx` (best file to explain Exp 1)
 
 **Part A, the data (lines 8-50).**
 ```jsx
@@ -174,13 +174,13 @@ Plain words:
 Plain words: "for every `lead` in the `facultyLeads` list, draw one `PersonCard`". Two leads in the list = two cards on screen. `key={lead.name}` is a unique label React needs on each item in a list so it can track them if the list changes.
 
 **What you see:** open `localhost:3000/about/team`: two faculty cards and three subsystem cards.
-**URL link:** `App.jsx:62` has `<Route path="team" element={<Team />} />` inside the `/about` route, which is why the address is `/about/team`.
+**URL link:** `App.jsx:45` has `<Route path="team" element={<Team />} />` inside the `/about` route, which is why the address is `/about/team`.
 
 ---
 
 # EXP 2: Props, hooks (useState, useEffect), conditional rendering, events
 
-### 4.1 `src/components/Tag.jsx`: the simplest example of props
+### 4.1 `src/exp2-hooks/Tag.jsx`: the simplest example of props
 ```jsx
 export default function Tag({ label, kind }) {
   return <span className={kind === 'exp' ? `${styles.tag} ${styles.exp}` : styles.tag}>{label}</span>;
@@ -189,15 +189,15 @@ export default function Tag({ label, kind }) {
 Plain words:
 - `Tag` is a small pill-shaped label.
 - `({ label, kind })` unpacks the two props it receives.
-- It shows `label` as the text. If `kind` is `'exp'` it uses the blue style, otherwise the grey style (this `? :` is the ternary, an if/else in one line).
-- Where it is used: `Experiments.jsx:32` `<Tag label="Exp 3" kind="exp" />` gives a blue pill saying Exp 3; line 47 `<Tag label={p.name} />` gives a grey pill.
+- It shows `label` as the text. If `kind` is `'highlight'` it uses the blue style, otherwise the grey style (this `? :` is the ternary, an if/else in one line).
+- Where it is used: `Students.jsx` table rows (lines 137-138): `<Tag label={s.branch} />` gives a grey pill, and `<Tag label={s.cgpa} kind="highlight" />` gives a blue pill when CGPA is above 9.
 - `styles.tag` comes from `Tag.module.css`. A **CSS Module** makes the class names private to this file, so they can never clash with another file's `.tag`.
 
-### 4.2 `src/pages/Students.jsx`: hooks, conditions and events together
+### 4.2 `src/exp2-hooks/Students.jsx`: hooks, conditions and events together
 
 This page lets you list, filter, add, edit and delete students.
 
-**Step 1: State (lines 29-35), the page's memory.**
+**Step 1: State (lines 30-36), the page's memory.**
 ```jsx
 const [students, setStudents] = useState([]);
 const [form, setForm] = useState(EMPTY);
@@ -220,7 +220,7 @@ Plain words: each line makes a variable plus a function to change it.
 | `loading` | true while waiting for the server |
 | `error` | an error message to show, or empty |
 
-**Step 2: Fetch the data when the page opens (lines 38-48).**
+**Step 2: Fetch the data when the page opens (lines 39-49).**
 ```jsx
 const load = useCallback(() => {
   let path = view === 'scholarship' ? '/students/scholarship' : '/students';
@@ -236,7 +236,7 @@ Plain words:
 - `useCallback(..., [view, filter])` keeps `load` the same function until `view` or `filter` change. Without it, `load` would be a "new" function on every redraw and the effect would run forever.
 - Result: open the page, students load. Click the Scholarship tab or type in the filter, `view`/`filter` change, `load` changes, the effect re-runs, the list updates.
 
-**Step 3: The helper that talks to the server (lines 15-20).**
+**Step 3: The helper that talks to the server (lines 16-21).**
 ```jsx
 async function api(path, options) {
   const res = await fetch(API + path, { headers: { 'Content-Type': 'application/json' }, ...options });
@@ -251,7 +251,7 @@ Plain words:
 - `res.ok` is false for errors like 400 or 404; `fetch` does not treat those as failures by itself, so we `throw` an Error to make them reach the `catch` where the page shows the message.
 - Every request in this page goes through this one helper, so the code is written once.
 
-**Step 4: Typing in the boxes (events) (line 51 and 93-99).**
+**Step 4: Typing in the boxes (events) (line 52 and 94-100).**
 ```jsx
 const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 ...
@@ -262,7 +262,7 @@ Plain words:
 - `set('name')` returns a function that updates just the `name` part of `form`. `{ ...form, [k]: e.target.value }` = copy the whole form, then replace the one field called `k` with what was typed.
 - Because `value={form.name}` shows the state and `onChange` updates it, React always knows what's in the box. This is a **controlled input**.
 
-**Step 5: Add or edit (lines 54-65).**
+**Step 5: Add or edit (lines 55-66).**
 ```jsx
 const submit = async (e) => {
   e.preventDefault();
@@ -291,11 +291,11 @@ Plain words:
 | 107 | `loading ? <p>Loading…</p> : <table>...` | show "Loading…" until data arrives, then the table |
 | 124 | `{students.length === 0 && <tr>No students found.</tr>}` | message when the list is empty |
 
-**Step 7: Draw the table (lines 133-144).** Same idea as the team cards: `students.map((s) => <tr key={s._id}> ... </tr>)` draws one table row per student. `s._id` is the unique id MongoDB gave that student, used as the `key`.
+**Step 7: Draw the table (lines 134-146).** Same idea as the team cards: `students.map((s) => <tr key={s._id}> ... </tr>)` draws one table row per student. `s._id` is the unique id MongoDB gave that student, used as the `key`.
 
 **Step 8: Edit and delete.**
-- Edit button runs `edit(s)` (line 79): copies that student's values into `form` and sets `editId`, so the same form now acts as an edit form.
-- Delete button runs `remove(s)` (line 68): `window.confirm` asks "Delete Aarav?"; if you say yes, it sends a DELETE request and reloads.
+- Edit button runs `edit(s)` (line 80): copies that student's values into `form` and sets `editId`, so the same form now acts as an edit form.
+- Delete button runs `remove(s)` (line 69): `window.confirm` asks "Delete Aarav?"; if you say yes, it sends a DELETE request and reloads.
 
 ---
 
@@ -303,7 +303,7 @@ Plain words:
 
 Validation = checking what the user typed before accepting it, and showing a message if it's wrong.
 
-### 5.1 `src/components/AuthForm.jsx`: one form for both Sign in and Register
+### 5.1 `src/exp3-forms/AuthForm.jsx`: one form for both Sign in and Register
 It receives a prop `mode` that is either `"login"` or `"register"`, so one file serves both.
 
 **State (lines 12-13)**
@@ -341,7 +341,7 @@ Plain words, step by step:
 - `field(...)` (line 34) is a small helper function that draws a label + input + error line, so we don't repeat that block four times.
 - Dropdown: `<select value={v.role} onChange={set('role')}>`; checkbox: `checked={v.agree}` (checkboxes use `checked`, not `value`).
 
-### 5.2 `src/context/AuthContext.jsx`: remembering who is logged in
+### 5.2 `src/exp3-forms/AuthContext.jsx`: remembering who is logged in
 **Context** is a way to share data with every component without passing it down by hand. `AuthProvider` wraps the app (`App.jsx`) and holds `user`; any component can read it with `useAuth()`.
 - `login(username)` builds a user object with a callsign (`VU2-` + first 4 letters in capitals, e.g. `VU2-DHRU`), puts it in state and saves it in the browser's `localStorage`.
 - On refresh, `useState(() => ...)` reads `localStorage` once, so you stay logged in.
@@ -375,7 +375,7 @@ Plain words: ignore empty messages; otherwise set `submitted` (the page then sho
 
 ### 5.6 Routing pieces in Exp 3
 - `Link` / `NavLink`: clickable links that change the page without reloading. `NavLink` knows if it is the current page (`isActive`) so it can be highlighted (`About.jsx:9`, `Navbar.jsx:47`).
-- Nested routes: `App.jsx:60-65` puts `team` and `company` inside `/about`. `About.jsx` has `<Outlet />` (line 55), the empty slot where the chosen child page appears, while the heading and tabs stay.
+- Nested routes: `App.jsx:43-46` puts `team` and `company` inside `/about`. `About.jsx` has `<Outlet />` (line 55), the empty slot where the chosen child page appears, while the heading and tabs stay.
 - `<Route path="*">` (line 66): any unknown URL goes back to the home page.
 
 ---
@@ -384,7 +384,7 @@ Plain words: ignore empty messages; otherwise set `submitted` (the page then sho
 
 MongoDB stores data as **documents** inside **collections**. We use the official Node driver (`mongodb` package) to create, read, update and delete them.
 
-### 6.1 `server/lab/exp7_crud.js`: the experiment itself
+### 6.1 `server/exp7-mongodb/exp7_crud.js`: the experiment itself
 Run it with `npm run exp7`. It prints results in the terminal. It runs five small programs in order:
 
 ```js
@@ -408,7 +408,7 @@ Plain words:
 
 Output you will see: `Connected Successfully`, `Database Created`, `Document inserted successfully`, `Inserted ID: ...`, the Raj document, `1 document matched.`, `1 document modified.`, the updated Raj (city Mumbai, salary 50000), `Successfully deleted one document.`, `Remaining documents: 1` (the "Admin" document).
 
-### 6.2 `server/mongo/db.js`: connect once, reuse
+### 6.2 `server/db.js`: connect once, reuse
 ```js
 let client;
 export async function connectDB() {
@@ -422,7 +422,7 @@ export const crew = async () => (await connectDB()).collection('crew');
 ```
 Plain words: the first call connects and remembers the connection in `client`; every later call reuses it (`if (!client)` is false). Opening a new connection on every request would be slow. `crew()` is a shortcut that gives you the `crew` collection.
 
-### 6.3 `server/mongo/crew.js`: the four CRUD functions for the website
+### 6.3 `server/exp6-express/crew.js`: the four CRUD functions for the website
 | Function | Does | Mongo call |
 |---|---|---|
 | `addMember` | creates a member with a random callsign and join time | `insertOne` |
@@ -432,7 +432,7 @@ Plain words: the first call connects and remembers the connection in `client`; e
 
 `toId` (line 7) turns the id text from the URL into a MongoDB id, or `null` if it isn't a valid one (so a wrong URL gives a clean "not found" instead of a crash).
 
-### 6.4 `server/mongo/api.js`: the Express routes for crew
+### 6.4 `server/exp6-express/api.js`: the Express routes for crew
 ```js
 app.use(cors());           // lets the page on :3000 talk to :5000
 app.use(express.json());   // reads JSON sent by the browser
@@ -444,7 +444,7 @@ app.use('/api/crew', crewRouter);
 ```
 Plain words: each line says "when the browser sends GET to `/api/crew`, call `findMembers()` and send back the result as JSON". `:id` is a placeholder for the id in the URL. If a required field is missing the route replies **400** (bad request); if the id doesn't exist, **404** (not found); a created item gets **201** (created).
 
-### 6.5 `src/pages/CrewRegistry.jsx`: the web page for it (`/crew`)
+### 6.5 `src/exp7-mongodb/CrewRegistry.jsx`: the web page for it (`/crew`)
 This is the front end that uses all the above. It is built like `Students.jsx`: state for the list and form, an `api()` helper using `fetch`, an effect that loads the list, a `submit` that sends POST or PUT, and a table made with `.map`. One extra feature, delete confirmation:
 - First click on Delete sets `confirmId`, and the button changes to "Confirm?".
 - Second click on the same button actually sends DELETE.
@@ -470,7 +470,7 @@ You click Register
   -> table redraws with the new row
 ```
 
-### 7.2 `server/students/routes.js`: the API's front door
+### 7.2 `server/exp8-students/routes.js`: the API's front door
 | Line | Request | What it does |
 |---|---|---|
 | 30 | `GET /api/students` | all students; or filtered with `?state=`, `?year=`, `?subject=` |
@@ -488,7 +488,7 @@ Two helper functions at the top:
 
 `/scholarship` (line 39) is written before `/:id` (line 42) on purpose: Express checks routes top to bottom, and `/:id` would swallow the word "scholarship" as if it were an id.
 
-### 7.3 One small file per job (`server/students/`)
+### 7.3 One small file per job (`server/exp8-students/`)
 | File | Job | Key idea |
 |---|---|---|
 | `find.js` | read | `find({ state })`, `find({ joiningYear })`, `find({ subjects: 'CN' })` (matches if the list contains it) |
@@ -501,7 +501,7 @@ Two helper functions at the top:
 | `seed.js` | demo data | `npm run seed` clears the collection and inserts 10 sample students |
 
 ### 7.4 The front end
-`src/pages/Students.jsx` is explained in the Exp 2 section above (state, `useEffect`, conditional rendering, events). For Exp 8 the point to make is: **it never touches the database; it only calls the API with `fetch`**, and the API validates and talks to MongoDB.
+`src/exp2-hooks/Students.jsx` is explained in the Exp 2 section above (state, `useEffect`, conditional rendering, events). For Exp 8 the point to make is: **it never touches the database; it only calls the API with `fetch`**, and the API validates and talks to MongoDB.
 
 ### 7.5 See it working without the website
 ```

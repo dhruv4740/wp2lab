@@ -6,14 +6,14 @@
   "scripts": {
     "dev": "node dev.js",
     "start": "node dev.js",
-    "server": "node server/groundStationServer.js",
-    "client": "node server/groundStationClient.js",
-    "api": "node server/mongo/api.js",
+    "server": "node server/exp5-node/groundStationServer.js",
+    "client": "node server/exp5-node/groundStationClient.js",
+    "api": "node server/exp6-express/api.js",
     "build": "node build.js",
     "preview": "vite preview",
-    "exp7": "node server/lab/exp7_crud.js",
-    "exp8": "node server/lab/exp8_modules.js",
-    "seed": "node server/students/seed.js"
+    "exp7": "node server/exp7-mongodb/exp7_crud.js",
+    "exp8": "node server/exp8-students/modules_demo.js",
+    "seed": "node server/exp8-students/seed.js"
   },
   "dependencies": {
     "axios": "^1.20.0",
