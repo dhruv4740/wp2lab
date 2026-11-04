@@ -18,7 +18,8 @@ Folders are named after the experiment they show. Open the folder, search for th
 | Folder | Experiment | Files | Route |
 |---|---|---|---|
 | `exp1-basic/` | 1 Basic React | `Home`, `Hero`, `About` (+ `<Outlet>`), `Team`, `Company` | `/`, `/about/team`, `/about/company` |
-| `exp2-hooks/` | 2 Hooks, props | `Tag` (+ `Tag.module.css`), `Students` | `/students` |
+| `exp2-hooks/` | 2 Props, CSS Module | `Tag` (+ `Tag.module.css`) | used on `/students` |
+| `exp8-mern/` | 8 MERN front end (also shows the Exp 2 hooks) | `Students` | `/students` |
 | `exp3-forms/` | 3 Forms | `AuthForm`, `AuthModal`, `LoginForm`, `RegisterForm`, `Contact`, `AuthContext` | `/login`, `/register`, `/experiments/contact` |
 | `exp4-api/` | 4 API | `Dispatches` (axios), `LatestNews` (fetch) | `/news`, home page |
 | `exp5-node/` | 5 Node (web console for the Node server) | `GroundSupport`, `GroundUplink` | `/gateway`, `/uplink` |

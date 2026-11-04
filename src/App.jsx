@@ -1,6 +1,6 @@
 // App shell: React Router decides which page to show for each URL (Exp 3 navigation).
 // AuthProvider (Context API) shares the signed-in user with every page.
-// Folder names tell you the experiment: exp1-basic, exp2-hooks, exp3-forms, exp4-api, exp5-node, exp6-express.
+// Folder names tell you the experiment: exp1-basic, exp2-hooks, exp3-forms, exp4-api, exp5-node, exp6-express, exp8-mern.
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider } from './exp3-forms/AuthContext';
@@ -11,7 +11,7 @@ import Home from './exp1-basic/Home';
 import About from './exp1-basic/About';
 import Team from './exp1-basic/Team';
 import Company from './exp1-basic/Company';
-import Students from './exp2-hooks/Students';
+import Students from './exp8-mern/Students';
 import LoginForm from './exp3-forms/LoginForm';
 import RegisterForm from './exp3-forms/RegisterForm';
 import Contact from './exp3-forms/Contact';

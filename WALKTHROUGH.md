@@ -191,7 +191,7 @@ Plain words:
 - Where it is used: `Students.jsx` table rows (lines 137-138): `<Tag label={s.branch} />` gives a grey pill, and `<Tag label={s.cgpa} kind="highlight" />` gives a blue pill when CGPA is above 9.
 - `styles.tag` comes from `Tag.module.css`. A **CSS Module** makes the class names private to this file, so they can never clash with another file's `.tag`.
 
-### 4.2 `src/exp2-hooks/Students.jsx`: hooks, conditions and events together
+### 4.2 `src/exp8-mern/Students.jsx`: hooks, conditions and events together
 
 This page lets you list, filter, add, edit and delete students.
 
@@ -499,7 +499,7 @@ Two helper functions at the top:
 | `seed.js` | demo data | `npm run seed` clears the collection and inserts 10 sample students |
 
 ### 7.4 The front end
-`src/exp2-hooks/Students.jsx` is explained in the Exp 2 section above (state, `useEffect`, conditional rendering, events). For Exp 8 the point to make is: **it never touches the database; it only calls the API with `fetch`**, and the API validates and talks to MongoDB.
+`src/exp8-mern/Students.jsx` is explained in the Exp 2 section above (state, `useEffect`, conditional rendering, events). For Exp 8 the point to make is: **it never touches the database; it only calls the API with `fetch`**, and the API validates and talks to MongoDB.
 
 ### 7.5 See it working without the website
 ```

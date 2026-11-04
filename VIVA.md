@@ -48,7 +48,7 @@ Files: `exp1-basic/Home.jsx`, `exp1-basic/Hero.jsx`, `exp1-basic/Team.jsx`. Rout
 ---
 
 # EXP 2: Components, props, hooks, conditional rendering, events
-Files: `exp2-hooks/Tag.jsx`, `exp2-hooks/Students.jsx`, `exp6-express/CrewRegistry.jsx` (hooks with a cleanup).
+Files: `exp2-hooks/Tag.jsx`, `exp8-mern/Students.jsx`, `exp6-express/CrewRegistry.jsx` (hooks with a cleanup).
 
 ### Props: `Tag.jsx`
 ```jsx
@@ -216,7 +216,7 @@ Remaining documents: 1
 ---
 
 # EXP 8: React + Node REST API (Student Management)
-Files: frontend `exp2-hooks/Students.jsx` (route `/students`); backend `server/exp8-students/routes.js` (+ `find.js`, `add.js`, `update.js`, `delete.js`, `attendance.js`, `grades.js`, `scholarship.js`, `seed.js`).
+Files: frontend `exp8-mern/Students.jsx` (route `/students`); backend `server/exp8-students/routes.js` (+ `find.js`, `add.js`, `update.js`, `delete.js`, `attendance.js`, `grades.js`, `scholarship.js`, `seed.js`).
 
 ### Architecture in one line
 `Students.jsx` --fetch--> Express (`api.js` mounts `studentRouter` at `/api/students`, `api.js:45`) --> `routes.js` --> function in `find/add/update/delete.js` --> MongoDB `students` collection. Response travels back as JSON.
