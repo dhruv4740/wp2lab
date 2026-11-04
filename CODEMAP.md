@@ -22,7 +22,7 @@ Folders are named after the experiment they show. Open the folder, search for th
 | `exp3-forms/` | 3 Forms | `AuthForm`, `AuthModal`, `LoginForm`, `RegisterForm`, `Contact`, `AuthContext` | `/login`, `/register`, `/experiments/contact` |
 | `exp4-api/` | 4 API | `Dispatches` (axios), `LatestNews` (fetch) | `/news`, home page |
 | `exp5-node/` | 5 Node (web console for the Node server) | `GroundSupport`, `GroundUplink` | `/gateway`, `/uplink` |
-| `exp7-mongodb/` | 7 MongoDB (website side) | `CrewRegistry` | `/crew` |
+| `exp6-express/` | 6 Express routing (website side: the crew page) | `CrewRegistry` | `/crew` |
 | `shared/` | | `Navbar`, `ErrorBoundary` | |
 | `mission-site/` | not an experiment | telemetry dashboard and its widgets | `/telemetry` |
 | `ps-passmonitor/` | problem statement | `PassMonitor` and its pieces | `/monitor` |
@@ -34,7 +34,8 @@ Folders are named after the experiment they show. Open the folder, search for th
 | Folder / file | Experiment | What it does |
 |---|---|---|
 | `exp5-node/groundStationServer.js`, `groundStationClient.js` | 5 | plain `http` server (port 8080) and a Node client |
-| `exp6-express/api.js`, `crew.js` | 6 | Express app: `cors`, `express.json`, mounted routers, 400/404/201/500; crew CRUD; `/api/news` |
+| `exp6-express/api.js` | 6 | main Express file (like `app.js`): `cors`, `express.json`, mounts the routers, `/api/news`, error middleware |
+| `exp6-express/crewRoutes.js`, `crew.js` | 6 | the crew router (own logging middleware, 400/404/201) and its MongoDB functions |
 | `db.js` | 7, 8 | MongoDB connection shared by crew and students |
 | `exp7-mongodb/exp7_crud.js` | 7 | the MongoDB CRUD script (`npm run exp7`) |
 | `exp8-students/` | 8 | `routes.js` (REST), one small file per job (`add`, `find`, `update`, `delete`, `attendance`, `grades`, `scholarship`), `seed.js`, `modules_demo.js` |

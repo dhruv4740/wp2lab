@@ -48,7 +48,7 @@ Files: `exp1-basic/Home.jsx`, `exp1-basic/Hero.jsx`, `exp1-basic/Team.jsx`. Rout
 ---
 
 # EXP 2: Components, props, hooks, conditional rendering, events
-Files: `exp2-hooks/Tag.jsx`, `exp2-hooks/Students.jsx`, `exp7-mongodb/CrewRegistry.jsx` (hooks with a cleanup).
+Files: `exp2-hooks/Tag.jsx`, `exp2-hooks/Students.jsx`, `exp6-express/CrewRegistry.jsx` (hooks with a cleanup).
 
 ### Props: `Tag.jsx`
 ```jsx
@@ -161,7 +161,7 @@ Controlled `<textarea value={message}>` (line 31-ish, the `<textarea>`), `if (me
 ---
 
 # EXP 7: MongoDB CRUD
-Files: `server/exp7-mongodb/exp7_crud.js` (the experiment script), `server/db.js`, `server/exp6-express/crew.js`, `server/exp6-express/api.js`; frontend: `exp7-mongodb/CrewRegistry.jsx` (route `/crew`).
+Files: `server/exp7-mongodb/exp7_crud.js` (the experiment script), `server/db.js`, `server/exp6-express/crew.js`, `server/exp6-express/api.js`; frontend: `exp6-express/CrewRegistry.jsx` (route `/crew`).
 
 **Run the experiment:** `npm run exp7` (MongoDB must be running). It prints to the terminal, it has no web page. The same driver and operations power `/crew`.
 

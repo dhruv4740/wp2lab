@@ -1,4 +1,4 @@
-// Exp 7: CRUD functions for the crew collection (insert, find, update, delete).
+// Exp 6/7: CRUD functions for the crew collection (insert, find, update, delete).
 // Each function is async (it returns a Promise), so callers must wait for the result.
 import { ObjectId } from 'mongodb';
 import { crew } from '../db.js';

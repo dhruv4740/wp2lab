@@ -1,52 +1,17 @@
-// Exp 6 + 8: Express server (port 5000). Mounts the REST routers for crew and students
-// (backed by MongoDB, Exp 7) and a news route that proxies a public API.
-import express, { Router } from 'express';
+// Exp 6 + 8: main Express file (port 5000), like app.js in the handout. It sets up the middleware and
+// mounts the modular routers: crewRoutes.js (Exp 6) and exp8-students/routes.js (Exp 8), plus a news route.
+import express from 'express';
 import cors from 'cors';
 import { readFile } from 'node:fs/promises';
 import studentRouter from '../exp8-students/routes.js';
-import { addMember, findMembers, updateMember, deleteMember } from './crew.js';
+import crewRouter from './crewRoutes.js';
 
 const app = express();
 // Middleware: cors lets the React dev server call this API; express.json parses JSON request bodies.
 app.use(cors());
 app.use(express.json());
 
-// Validation helpers: a body is valid when name and branch are non-empty strings.
-const valid = (b) => b && typeof b.name === 'string' && b.name.trim() && typeof b.branch === 'string' && b.branch.trim();
-const clean = (b) => ({ name: b.name.trim(), branch: b.branch.trim() });
-
-// Crew REST API (mounted at /api/crew): GET list, POST create, PUT update, DELETE remove.
-const crewRouter = Router();
-
-// Router-level middleware (Exp 6): runs only for /api/crew requests. next() passes control to the matching route.
-crewRouter.use((req, res, next) => {
-  console.log('Crew request received at:', Date.now(), req.method, req.url);
-  next();
-});
-
-// Async handler: the reply is sent only after the database has answered.
-crewRouter.get('/', async (req, res) => res.json(await findMembers()));
-
-// Respond 400 when required fields are missing, otherwise 201 Created with the new member.
-crewRouter.post('/', async (req, res) => {
-  if (!valid(req.body)) return res.status(400).json({ error: 'name and branch are required' });
-  res.status(201).json(await addMember(clean(req.body)));
-});
-
-// :id is a route parameter (req.params.id). Respond 404 when no member has that id.
-crewRouter.put('/:id', async (req, res) => {
-  if (!valid(req.body)) return res.status(400).json({ error: 'name and branch are required' });
-  const updated = await updateMember(req.params.id, clean(req.body));
-  if (!updated) return res.status(404).json({ error: 'not found' });
-  res.json(updated);
-});
-
-crewRouter.delete('/:id', async (req, res) => {
-  if (!(await deleteMember(req.params.id))) return res.status(404).json({ error: 'not found' });
-  res.json({ deleted: true });
-});
-
-// Mount the routers under their URL prefixes.
+// Mount each router under its URL prefix (Exp 6): /api/crew -> crewRoutes.js, /api/students -> exp8-students/routes.js.
 app.use('/api/crew', crewRouter);
 app.use('/api/students', studentRouter);
 

@@ -27,7 +27,7 @@ Folders you need:
 
 | Folder / file | What is inside |
 |---|---|
-| `src/exp1-basic/` ... `src/exp4-api/`, `src/exp7-mongodb/` | the pages and components of each experiment, one folder per experiment |
+| `src/exp1-basic/` ... `src/exp4-api/`, `src/exp6-express/` | the pages and components of each experiment, one folder per experiment |
 | `src/shared/`, `src/mission-site/`, `src/ps-passmonitor/` | Navbar and error boundary; the telemetry pages; the problem-statement pass monitor |
 | `src/exp3-forms/AuthContext.jsx` | remembers who is logged in |
 | `src/App.jsx` | the list of URLs and which page each one shows |
@@ -442,7 +442,7 @@ app.use('/api/crew', crewRouter);
 ```
 Plain words: each line says "when the browser sends GET to `/api/crew`, call `findMembers()` and send back the result as JSON". `:id` is a placeholder for the id in the URL. If a required field is missing the route replies **400** (bad request); if the id doesn't exist, **404** (not found); a created item gets **201** (created).
 
-### 6.5 `src/exp7-mongodb/CrewRegistry.jsx`: the web page for it (`/crew`)
+### 6.5 `src/exp6-express/CrewRegistry.jsx`: the web page for it (`/crew`)
 This is the front end that uses all the above. It is built like `Students.jsx`: state for the list and form, an `api()` helper using `fetch`, an effect that loads the list, a `submit` that sends POST or PUT, and a table made with `.map`. One extra feature, delete confirmation:
 - First click on Delete sets `confirmId`, and the button changes to "Confirm?".
 - Second click on the same button actually sends DELETE.
