@@ -18,6 +18,12 @@ const clean = (b) => ({ name: b.name.trim(), branch: b.branch.trim() });
 // Crew REST API (mounted at /api/crew): GET list, POST create, PUT update, DELETE remove.
 const crewRouter = Router();
 
+// Router-level middleware (Exp 6): runs only for /api/crew requests. next() passes control to the matching route.
+crewRouter.use((req, res, next) => {
+  console.log('Crew request received at:', Date.now(), req.method, req.url);
+  next();
+});
+
 // Async handler: the reply is sent only after the database has answered.
 crewRouter.get('/', async (req, res) => res.json(await findMembers()));
 
