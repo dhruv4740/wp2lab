@@ -5,6 +5,9 @@ import { useAuth } from '../exp3-forms/AuthContext';
 import { Menu, X } from 'lucide-react';
 
 const LINKS = [
+  { to: '/about', label: 'About' },
+  { to: '/students', label: 'Students' },
+  { to: '/experiments/contact', label: 'Contact' },
   { to: '/telemetry', label: 'Telemetry' },
   { to: '/monitor', label: 'Monitor' },
   { to: '/uplink', label: 'Uplink' },
