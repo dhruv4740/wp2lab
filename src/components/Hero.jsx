@@ -2,6 +2,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+// A function component: it returns JSX, which React turns into the page. It takes no props.
+// style={{ ... }}: the outer braces mean "JavaScript here", the inner braces are the style object (camelCase names).
 export default function Hero() {
   return (
     <section style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '7rem 1.5rem 3rem', textAlign: 'center', background: 'radial-gradient(ellipse at 50% 0%, rgba(0,229,255,0.12), transparent 60%)' }}>
@@ -15,6 +17,7 @@ export default function Hero() {
         <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '2rem' }}>
           A 5 cm amateur-radio satellite with an onboard AI router. It ranks telemetry, images and voice, then sends the most important data in each short ground pass.
         </p>
+        {/* Two buttons: <Link> opens another page without reloading; <a href="#..."> only scrolls down this page */}
         <div style={{ display: 'flex', gap: '0.8rem', justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link to="/telemetry" className="btn-primary" style={{ padding: '0.8rem 1.6rem', borderRadius: 8, background: 'var(--accent-cyan)', color: '#04060a', fontWeight: 600, textDecoration: 'none' }}>
             View telemetry

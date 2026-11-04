@@ -134,7 +134,7 @@ Key lines:
 
 ### 3.3 `src/pages/Team.jsx` (best file to explain Exp 1)
 
-**Part A, the data (lines 4-45).**
+**Part A, the data (lines 8-50).**
 ```jsx
 const facultyLeads = [
   { name: 'Dr. Umesh Shinde', role: 'Faculty Co-Lead...', institution: 'KJSIT Mumbai', ... },
@@ -143,7 +143,7 @@ const facultyLeads = [
 ```
 Plain words: this is a **list of objects**. Each `{ ... }` is one person (one "row"), and `name`, `role`, `institution` are the "columns". There is a second list, `studentTeams`, for the three student subsystems. Keeping data separate from the drawing code means you can add a person by adding one more `{ ... }`, and the page updates by itself.
 
-**Part B, a reusable card (lines 62-78).**
+**Part B, a reusable card (lines 70-88).**
 ```jsx
 function PersonCard({ icon: Icon, color, name, nameSize, role, children }) {
   return (
@@ -162,7 +162,7 @@ Plain words:
 - `icon: Icon` means "take the value called `icon` and call it `Icon`". We rename it with a capital letter because React treats `<icon />` as an HTML tag, but `<Icon />` as a component.
 - `{children}` is whatever you write between `<PersonCard>` and `</PersonCard>` when you use it. It lets each card have different extra content inside the same frame.
 
-**Part C, turning data into cards (lines 89-98).**
+**Part C, turning data into cards (lines 103-112).**
 ```jsx
 {facultyLeads.map((lead) => (
   <PersonCard key={lead.name} icon={GraduationCap} color={lead.color} name={lead.name} role={lead.role}>

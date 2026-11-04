@@ -1,6 +1,10 @@
+// Exp 1: the Team page (route /about/team). It shows the data below as cards.
+// The idea: keep the data in arrays of objects, then draw one reusable card per object with .map().
 import React from 'react';
+// Icons are React components from the lucide-react package; they are used as <Users />, <Cpu /> etc.
 import { Users, GraduationCap, Cpu, Radio, Shield, Award } from 'lucide-react';
 
+// Data 1: a list (array) of objects. Each { ... } is one faculty member; name, role, ... are its fields.
 const facultyLeads = [
   {
     name: 'Dr. Umesh Shinde',
@@ -20,6 +24,7 @@ const facultyLeads = [
   },
 ];
 
+// Data 2: the three student subsystems. `icon` holds a component (not text) that PersonCard draws later.
 const studentTeams = [
   {
     subsystem: 'AI & Data Science Subsystem',
@@ -44,9 +49,12 @@ const studentTeams = [
   },
 ];
 
+// A shared style object, reused below with { ...mono } so the monospace font is written once.
 const mono = { fontFamily: 'JetBrains Mono, monospace' };
 
 // Reusable section heading: icon, title and one-line description.
+// Props arrive as one object; { icon, title, children } unpacks them. `children` is the text
+// written between <SectionHeading> and </SectionHeading> where it is used.
 function SectionHeading({ icon, title, children }) {
   return (
     <>
@@ -60,6 +68,8 @@ function SectionHeading({ icon, title, children }) {
 }
 
 // Reusable card: coloured icon box, name, role line, and any children below.
+// `icon: Icon` unpacks the prop `icon` and renames it to `Icon`; a component name must start with a
+// capital letter to be used as a tag (<Icon />), otherwise React treats it as an HTML tag.
 function PersonCard({ icon: Icon, color, name, nameSize, role, children }) {
   return (
     <div style={{ backgroundColor: '#04060a', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '10px', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -77,15 +87,19 @@ function PersonCard({ icon: Icon, color, name, nameSize, role, children }) {
   );
 }
 
+// The page: two sections, each a heading plus a grid of cards. App.jsx shows it at /about/team,
+// inside the About page's <Outlet />.
 export default function Team() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      {/* Section 1: faculty. .map() runs once per object in facultyLeads and returns one card for each. */}
       <div>
         <SectionHeading icon={<Award size={18} color="#00f0ff" />} title="Mission Direction & Faculty Leadership">
           Inter-collegiate space mission initiative supervised by leading faculty researchers across K. J. Somaiya Institute of Technology (KJSIT) and K. J. Somaiya College of Engineering (KJSSE).
         </SectionHeading>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          {/* key must be unique per item so React can track each card when the list changes */}
           {facultyLeads.map((lead) => (
             <PersonCard key={lead.name} icon={GraduationCap} color={lead.color} name={lead.name} nameSize="1.05rem" role={lead.role}>
               <div style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>
@@ -99,6 +113,7 @@ export default function Team() {
         </div>
       </div>
 
+      {/* Section 2: student subsystems, drawn the same way from studentTeams (same PersonCard, different data) */}
       <div>
         <SectionHeading icon={<Users size={18} color="#10b981" />} title="Multidisciplinary Student Subsystems">
           Student engineers collaborate across IT, Computer Engineering, AI &amp; Data Science, EXTC, and Robotics &amp; AI.

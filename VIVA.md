@@ -30,17 +30,17 @@ Files: `pages/Home.jsx`, `components/Hero.jsx`, `pages/Team.jsx`. Routes: `/` an
 - `style={{ ... }}`: outer braces = JS expression, inner braces = style object. CSS properties are camelCase (`fontSize`).
 
 **Team.jsx** (best file to explain Exp 1 in detail)
-- Lines 4-21 `facultyLeads` and 23-45 `studentTeams`: plain arrays of objects = the data.
-- Lines 89-98: `facultyLeads.map(lead => <PersonCard key={lead.name} ... />)` = list rendering. `key` gives React a stable identity per item.
-- Lines 50 and 63: `SectionHeading` and `PersonCard` are small reusable components in the same file. Both take props.
-- Line 63: `{ icon: Icon, ... }` destructures the prop and renames it to `Icon`. *Why:* JSX treats lowercase tags as HTML, so a component must start with a capital letter: `<Icon size={20} />`.
-- Lines 63 and 75: `children` prop: whatever is written between `<PersonCard>...</PersonCard>` is rendered at `{children}`.
+- Lines 8-25 `facultyLeads` and 28-50 `studentTeams`: plain arrays of objects = the data.
+- Lines 103-112: `facultyLeads.map(lead => <PersonCard key={lead.name} ... />)` = list rendering. `key` gives React a stable identity per item.
+- Lines 58 and 73: `SectionHeading` and `PersonCard` are small reusable components in the same file. Both take props.
+- Line 73: `{ icon: Icon, ... }` destructures the prop and renames it to `Icon`. *Why:* JSX treats lowercase tags as HTML, so a component must start with a capital letter: `<Icon size={20} />`.
+- Lines 58 and 85: `children` prop: whatever is written between `<PersonCard>...</PersonCard>` is rendered at `{children}`.
 - Line 2: icons come from `lucide-react`, which are React components.
 - Route: `App.jsx:62` is `<Route path="team" element={<Team />} />`, nested under `/about`, so the URL is `/about/team`.
 
 **Output to expect:** `/about/team` shows two faculty cards (Dr. Umesh Shinde, Dr. Shailesh Nikam) and three subsystem cards. Adding one object to `studentTeams` gives a fourth card with no other code change.
 
-**Q: Why can't a component return two sibling elements?** It must return one root; use a wrapper or a fragment `<> </>` (used at `Team.jsx:52`).
+**Q: Why can't a component return two sibling elements?** It must return one root; use a wrapper or a fragment `<> </>` (used at `Team.jsx:60`).
 **Q: Component vs function?** A component is a function that returns JSX and is used as a tag; React calls it and re-calls it when state or props change.
 **Q: Virtual DOM?** React keeps a lightweight copy of the UI, compares old and new after a change, and updates only the real DOM parts that differ.
 **Q: How does the page load at all?** `index.html` has `<div id="root">`; `main.jsx:7` does `ReactDOM.createRoot(...).render(<App />)`; `App.jsx` holds the router.
