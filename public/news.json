@@ -1,0 +1,132 @@
+{
+  "mission": "SomaiyaSat-1 & SomaiyaPod",
+  "system": "Orbital Ground Intelligence Network (OGIN)",
+  "apiEndpoint": "/news.json",
+  "protocolVersion": "HTTP/1.1",
+  "statusCode": 200,
+  "statusText": "OK",
+  "lastUpdated": "2026-08-24T12:00:00Z",
+  "totalArticles": 6,
+  "articles": [
+    {
+      "id": "DISPATCH-2026-084",
+      "title": "SomaiyaPod Deployer Separation Switch Qualification Passed at 10g Vibration Level",
+      "slug": "somaiyapod-separation-switch-qualification",
+      "category": "Hardware & Deployer",
+      "date": "2026-08-22",
+      "author": "Mechanical Systems & Deployer Team",
+      "callsign": "VU2-MECH-01",
+      "priority": "HIGH",
+      "featured": true,
+      "readTimeMinutes": 3,
+      "summary": "Environmental Test Level (ETL) vibration and separation switch tests confirm zero-chatter deployment release profile for SomaiyaSat 1PQ PocketQube inside SomaiyaPod deployer.",
+      "content": "The mechanical integration team at KJSSE in collaboration with ReOrbit Finland has concluded the dynamic qualification test campaign for the SomaiyaPod custom PocketQube deployer mechanism. Simulating maximum acoustic and dynamic shock loads during PSLV stage separation (10g RMS), the separation switch array demonstrated microsecond-level contact clearance with zero mechanical chatter. Post-test inspection showed zero dimensional distortion in the internal 50x50x50mm guide rails, ensuring smooth spring-loaded ejection during orbital insertion.",
+      "tags": ["SomaiyaPod", "PocketQube", "Vibration Test", "ETL", "KJSSE"],
+      "metrics": {
+        "vibrationLoad": "10.2 g RMS",
+        "ejectionVelocity": "1.4 m/s",
+        "deployerStatus": "QUALIFIED"
+      }
+    },
+    {
+      "id": "DISPATCH-2026-082",
+      "title": "Onboard AI Data Router Demonstrates 99.4% Critical Telemetry Delivery in Orbit Simulation",
+      "slug": "onboard-ai-data-router-simulation-results",
+      "category": "AI & Telemetry",
+      "date": "2026-08-19",
+      "author": "Autonomous Flight Software Team",
+      "callsign": "VU2-AI-DEV",
+      "priority": "FLASH",
+      "featured": true,
+      "readTimeMinutes": 4,
+      "summary": "Hardware-in-the-loop (HIL) testing of the low-power onboard decision tree scheduler verifies guaranteed TT&C delivery even under deep battery fade and rapid Doppler shift.",
+      "content": "Running directly on the satellite's low-power flight SoC under simulated sub-1W average power constraints, the autonomous AI routing algorithm dynamically prioritized housekeeping TT&C packets over SSTV and Codec2 digital voice transmissions during battery safe-mode transitions (<25% SoC). Over 200 simulated Low Earth Orbit ground passes over Mumbai and Helsinki stations, zero mission-critical telemetry packets were dropped, achieving a 99.4% overall delivery rate across fluctuating SNR conditions.",
+      "tags": ["AI Scheduler", "Flight Software", "TT&C", "HIL Testing", "ReOrbit"],
+      "metrics": {
+        "aiInferenceLatency": "4.2 ms",
+        "deliverySuccessRate": "99.4%",
+        "powerDraw": "0.38 W"
+      }
+    },
+    {
+      "id": "DISPATCH-2026-079",
+      "title": "Amateur Radio Payload Suite Integrated: M17 Digital Voice & SSTV Ready for Ground Staging",
+      "slug": "amateur-radio-payload-suite-integrated",
+      "category": "Amateur Radio",
+      "date": "2026-08-14",
+      "author": "RF & Telecommunications Division",
+      "callsign": "VU2-RF-LAB",
+      "priority": "ROUTINE",
+      "featured": false,
+      "readTimeMinutes": 3,
+      "summary": "Dual-mode 437.000 MHz transmitter successfully integrates M17 4FSK digital protocol and Robot36 SSTV encoder for open worldwide HAM reception.",
+      "content": "The RF engineering payload team has finalized firmware integration for the amateur radio transponder payload. Ground radio operators worldwide will be able to receive downlinked Robot36 SSTV images and decode M17 digital voice packets using standard SDR hardware and open-source SatNOGS ground station nodes. Frequency coordination filing with the IARU Amateur Satellite Frequency Coordination panel is progressing smoothly for the designated 437.000 MHz UHF band.",
+      "tags": ["M17", "SSTV", "Codec2", "Amateur Radio", "SatNOGS"],
+      "metrics": {
+        "frequency": "437.000 MHz",
+        "txPower": "27 dBm",
+        "modulation": "4FSK / FM"
+      }
+    },
+    {
+      "id": "DISPATCH-2026-075",
+      "title": "ReOrbit Finland Ground Station Network Integration Milestone Completed",
+      "slug": "reorbit-finland-ground-station-integration",
+      "category": "International Collaboration",
+      "date": "2026-08-08",
+      "author": "Mission Operations Directorate",
+      "callsign": "OH2-REORBIT",
+      "priority": "ROUTINE",
+      "featured": false,
+      "readTimeMinutes": 2,
+      "summary": "Cross-hemisphere ground station telecommand bridging establishes low-latency telemetry synchronization between Helsinki and Mumbai ground terminals.",
+      "content": "As part of the international aerospace partnership between ReOrbit (Helsinki, Finland) and K. J. Somaiya College of Engineering (Mumbai, India), the ground segment team has synchronized mission command pipelines. Both European and Indian ground station nodes now share a real-time MQTT telemetry broker and encrypted command authentication framework for continuous satellite tracking across high-latitude orbital passes.",
+      "tags": ["ReOrbit", "Finland", "International", "Ground Segment", "Telecommand"],
+      "metrics": {
+        "syncLatency": "18 ms",
+        "activeNodes": "2 Primary, 12 SatNOGS",
+        "securityProtocol": "HMAC-SHA256"
+      }
+    },
+    {
+      "id": "DISPATCH-2026-068",
+      "title": "Solar Array MPPT Efficiency Reaches 29.2% in Thermal Vacuum Chamber Test Run",
+      "slug": "solar-array-mppt-efficiency-tvac-results",
+      "category": "Orbital Operations",
+      "date": "2026-07-29",
+      "author": "Electrical Power Systems (EPS) Team",
+      "callsign": "VU2-EPS-03",
+      "priority": "ROUTINE",
+      "featured": false,
+      "readTimeMinutes": 3,
+      "summary": "Gallium Arsenide (GaAs) triple-junction solar panels withstand extreme -40°C to +85°C thermal cycling while maintaining peak power tracking.",
+      "content": "The EPS team has published results from the 72-hour Thermal Vacuum (TVAC) chamber qualification. Operating under a simulated space vacuum of 10^-5 Torr with cyclical thermal extremes, the onboard Maximum Power Point Tracking (MPPT) circuit sustained an overall conversion efficiency of 29.2%. The dual lithium-iron-phosphate (LiFePO4) battery pack demonstrated uniform cell balancing and autonomous thermal heater activation during cold eclipse phases.",
+      "tags": ["EPS", "Solar Array", "TVAC", "MPPT", "Thermal Balance"],
+      "metrics": {
+        "cellEfficiency": "29.2%",
+        "tempRange": "-40°C to +85°C",
+        "batteryHealth": "100% SOH"
+      }
+    },
+    {
+      "id": "DISPATCH-2026-060",
+      "title": "KJSSE Student Flight Controllers Complete 48-Hour Simulated Orbital Pass Drill",
+      "slug": "student-flight-controllers-orbital-drill",
+      "category": "Orbital Operations",
+      "date": "2026-07-18",
+      "author": "Mission Operations Directorate",
+      "callsign": "VU2-OPS-MUM",
+      "priority": "HIGH",
+      "featured": false,
+      "readTimeMinutes": 3,
+      "summary": "Interdisciplinary student engineering team successfully executes rapid contingency procedures for simulated attitude tumble and signal loss scenarios.",
+      "content": "Over a non-stop 48-hour mission simulation, 24 student engineers across Information Technology, Electronics & Telecommunication, Mechanical, and Computer Science programs operated the SomaiyaSat Ground Station Console. The operators successfully identified simulated sensor anomalies, re-queued prioritized downlinks via the in-page control interface, and restored nominal orientation using magnetorquer detumbling algorithms.",
+      "tags": ["Simulation", "Flight Controllers", "Mission Ops", "Student Team", "KJSSE"],
+      "metrics": {
+        "simulatedPasses": "32 Passes",
+        "anomalyResolutionTime": "114 sec",
+        "drillScore": "98.5%"
+      }
+    }
+  ]
+}
